@@ -3,6 +3,7 @@ package com.example.gnss;
 import android.content.Intent;
 import android.os.Bundle;
 
+import com.example.gnss.dto.SurveyQuestion;
 import com.google.android.material.snackbar.Snackbar;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -19,6 +20,8 @@ import com.example.gnss.databinding.ActivityMainBinding;
 
 import android.view.Menu;
 import android.view.MenuItem;
+
+import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
 
