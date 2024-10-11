@@ -24,5 +24,13 @@
         <action
             android:id="@+id/action_SecondFragment_to_FirstFragment"
             app:destination="@id/FirstFragment" />
+        <action
+            android:id="@+id/action_SecondFragment_to_surveyCreation"
+            app:destination="@id/surveyCreation" />
     </fragment>
+    <fragment
+        android:id="@+id/surveyCreation"
+        android:name="com.example.gnss.SurveyCreation"
+        android:label="fragment_survey_creation"
+        tools:layout="@layout/fragment_survey_creation" />
 </navigation>

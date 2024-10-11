@@ -12,6 +12,17 @@
         android:padding="16dp">
 
         <Button
+            android:id="@+id/button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="116dp"
+            android:layout_marginTop="-16dp"
+            android:onClick="goToCreateSurvey"
+            android:text="Create survey"
+            app:layout_constraintStart_toStartOf="@id/button_second"
+            app:layout_constraintTop_toBottomOf="@+id/button_second" />
+
+        <Button
             android:id="@+id/button_second"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

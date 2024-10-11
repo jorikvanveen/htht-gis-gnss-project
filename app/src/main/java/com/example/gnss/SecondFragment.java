@@ -36,6 +36,11 @@ public class SecondFragment extends Fragment {
                         .navigate(R.id.action_SecondFragment_to_FirstFragment);
             }
         });
+
+        binding.button.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View vew) {
+            }
+        });
     }
 
     @Override
@@ -44,4 +49,7 @@ public class SecondFragment extends Fragment {
         binding = null;
     }
 
+    public void goToCreateSurvey(View view) {
+        NavHostFragment.findNavController(this).navigate(R.id.action_SecondFragment_to_surveyCreation);
+    }
 }
