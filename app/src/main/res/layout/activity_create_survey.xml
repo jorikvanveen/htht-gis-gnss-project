@@ -51,6 +51,7 @@
                     android:layout_height="match_parent">
 
                     <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/survey_name"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:hint="Survey name" />
@@ -62,6 +63,7 @@
                     android:layout_height="match_parent">
 
                     <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/feature_1"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:hint="Feature 1" />
