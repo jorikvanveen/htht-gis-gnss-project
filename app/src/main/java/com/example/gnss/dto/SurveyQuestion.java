@@ -1,11 +1,26 @@
 package com.example.gnss.dto;
 
-import java.util.UUID;
+import androidx.annotation.NonNull;
 
-public class SurveyQuestion {
+import java.io.Serializable;
+import java.util.UUID;
+import java.util.Optional;
+
+/**
+ * Represents a single survey question.
+ */
+public class SurveyQuestion implements Serializable {
     private UUID id;
     private SurveyQuestionType type;
     private String prompt;
+
+    public SurveyQuestion(@NonNull Optional<UUID> id,
+                          @NonNull SurveyQuestionType type,
+                          @NonNull String prompt) {
+        this.id = id.orElse(UUID.randomUUID());
+        this.type = type;
+        this.prompt = prompt;
+    }
 
     public SurveyQuestionType getType() {
         return type;

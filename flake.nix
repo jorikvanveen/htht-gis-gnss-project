@@ -16,6 +16,7 @@
           jdk
           gradle
 	      android-studio
+          android-tools
         ];
       };
     }
