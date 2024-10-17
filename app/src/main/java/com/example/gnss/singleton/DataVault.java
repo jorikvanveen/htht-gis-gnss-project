@@ -14,6 +14,7 @@ import com.esotericsoftware.kryo.kryo5.Kryo;
 import com.esotericsoftware.kryo.kryo5.io.Input;
 import com.esotericsoftware.kryo.kryo5.io.Output;
 
+import com.esotericsoftware.kryo.kryo5.serializers.DefaultSerializers;
 import com.example.gnss.dto.Survey;
 import com.example.gnss.dto.SurveyQuestion;
 import com.example.gnss.dto.SurveyQuestionType;
@@ -107,8 +108,7 @@ public class DataVault implements Serializable {
         kryo.register(SurveyQuestionType.class);
         kryo.register(DataVault.class);
         kryo.register(ArrayList.class);
-        kryo.register(UUID.class);
-        kryo.register(Optional.class);
+        kryo.register(UUID.class, new DefaultSerializers.UUIDSerializer());
 
         File filesDir = context.getFilesDir();
         Input input;
