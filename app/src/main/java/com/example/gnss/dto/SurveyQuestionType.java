@@ -13,6 +13,8 @@ public enum SurveyQuestionType implements Serializable {
     Integer,
     Boolean;
 
+    private SurveyQuestionType() { }
+
     public static Optional<SurveyQuestionType> fromString(String str) {
         switch (str) {
             case "Text":

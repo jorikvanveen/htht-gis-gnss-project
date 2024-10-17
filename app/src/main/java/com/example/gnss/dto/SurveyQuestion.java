@@ -14,6 +14,8 @@ public class SurveyQuestion implements Serializable {
     private SurveyQuestionType type;
     private String prompt;
 
+    private SurveyQuestion() {}
+
     public SurveyQuestion(@NonNull Optional<UUID> id,
                           @NonNull SurveyQuestionType type,
                           @NonNull String prompt) {

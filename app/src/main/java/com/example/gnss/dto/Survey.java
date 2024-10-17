@@ -19,6 +19,8 @@ public class Survey implements Serializable {
     private String name;
     private ArrayList<SurveyQuestion> questions;
 
+    private Survey() {};
+
     public Survey(@NonNull Optional<UUID> id,
                   @NonNull String name,
                   @NonNull Optional<ArrayList<SurveyQuestion>> questions) {

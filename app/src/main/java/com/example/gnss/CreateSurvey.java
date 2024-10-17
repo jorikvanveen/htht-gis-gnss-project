@@ -4,8 +4,10 @@ import android.graphics.ColorFilter;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
+import android.provider.ContactsContract;
 import android.util.AttributeSet;
 import android.util.LayoutDirection;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -27,18 +29,25 @@ import androidx.core.view.WindowInsetsCompat;
 import com.example.gnss.dto.Survey;
 import com.example.gnss.dto.SurveyQuestion;
 import com.example.gnss.dto.SurveyQuestionType;
+import com.example.gnss.singleton.DataVault;
 import com.google.android.material.button.MaterialButton;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Optional;
 
 import javax.annotation.Nullable;
 
 public class CreateSurvey extends AppCompatActivity {
+    private DataVault vault = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        Log.d("epic", this.toString());
+        vault = DataVault.getInstance(this.getApplicationContext());
+
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_create_survey);
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
@@ -120,13 +129,14 @@ public class CreateSurvey extends AppCompatActivity {
      * Listens to onClick events from the save button, gets all the data from the form, serializes
      * it into a Survey object, and saves the data somewhere.
      */
-    public void onSave(View view) {
-        Survey survey = this.deserialize();
+    public void onSave(View view) throws IOException {
+        Survey survey = this.readFormData();
 
-        // TODO: Save this somewhere, somehow, and update javadoc after adding it
+        vault.surveys.add(survey);
+        DataVault.save(this);
     }
 
-    public Survey deserialize() {
+    public Survey readFormData() {
         ArrayList<SurveyQuestion> questions = new ArrayList<>();
         LinearLayout questionsList = findViewById(R.id.questionsListLayout);
 
