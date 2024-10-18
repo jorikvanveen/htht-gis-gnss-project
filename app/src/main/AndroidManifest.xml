@@ -23,11 +23,6 @@
         <activity
             android:launchMode="singleTop"
 
-            android:name=".AdjustLocationActivity"
-            android:exported="false" />
-        <activity
-            android:launchMode="singleTop"
-
             android:name=".DisplayMaps"
             android:exported="true"/>
 
