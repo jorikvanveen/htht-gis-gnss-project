@@ -2,6 +2,8 @@ package com.example.gnss;
 
 
 import android.Manifest;
+import android.content.ContentResolver;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -12,10 +14,13 @@ import android.net.ConnectivityManager;
 import android.net.Network;
 import android.net.NetworkCapabilities;
 import android.net.NetworkRequest;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.provider.MediaStore;
 import android.provider.Settings;
+import android.util.Log;
 import android.view.ViewTreeObserver;
 import android.widget.Button;
 import android.widget.FrameLayout;
@@ -56,6 +61,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.Set;
 
 public class DisplayMaps extends AppCompatActivity {
@@ -89,7 +95,7 @@ public class DisplayMaps extends AppCompatActivity {
     private final Handler locationCheckHandler = new Handler();
     private Runnable locationCheckRunnable;
 
-
+    private boolean isPaused = false;
 
 
     // Launcher for location settings activity
@@ -145,10 +151,7 @@ public class DisplayMaps extends AppCompatActivity {
 
         // Set up the save location button to launch an activity for adjusting the marker
         saveLocationButton.setOnClickListener(v -> {
-            Intent intent = new Intent(DisplayMaps.this, AdjustLocationActivity.class);
-            intent.putExtra("latitude", latitude); // Pass the current latitude to the new activity
-            intent.putExtra("longitude", longitude); // Pass the current longitude to the new activity
-            startActivityForResult(intent, LOCATION_ADJUST_REQUEST_CODE); // Start the activity for result
+           saveLocationToCSV(longitude, latitude);
         });
     }
 
@@ -156,6 +159,7 @@ public class DisplayMaps extends AppCompatActivity {
     /**
      * Starts a periodic check if the location services are enabled. If not, prompts the user to enable them.
      * Checks if there is an active internet connection.
+     *
      * @return true if internet is available, false otherwise.
      */
     private boolean isInternetAvailable() {
@@ -201,7 +205,9 @@ public class DisplayMaps extends AppCompatActivity {
         });
     }
 
-    /** Method to switch to the online map (Openstreetmap) */
+    /**
+     * Method to switch to the online map (Openstreetmap)
+     */
     private void switchToOnlineMap() {
         // Clear the current map from the container
         mapContainer.removeAllViews();
@@ -210,7 +216,9 @@ public class DisplayMaps extends AppCompatActivity {
         //Toast.makeText(this, "Switched to online map", Toast.LENGTH_SHORT).show();
     }
 
-    /** Method to switch to the offline map (Mapsforge) */
+    /**
+     * Method to switch to the offline map (Mapsforge)
+     */
     private void switchToOfflineMap() {
         mapContainer.removeAllViews();
         loadOfflineMap();
@@ -348,7 +356,6 @@ public class DisplayMaps extends AppCompatActivity {
     }
 
 
-
     /**
      * This method copies a file from the app's raw resources to the internal storage of the app.
      * It takes a resource ID and a desired file name as parameters. The method reads the resource
@@ -393,31 +400,31 @@ public class DisplayMaps extends AppCompatActivity {
         locationCheckRunnable = new Runnable() {
             @Override
             public void run() {
-                // Check if the location services are enabled on the device
-                if (!isLocationEnabled()) {
-                    // If location services are disabled, show a toast message to the user
-                    Toast.makeText(DisplayMaps.this, "Location services are disabled. Please enable them.", Toast.LENGTH_SHORT).show();
+                if (!isPaused) {
+                    // Check if the location services are enabled on the device
+                    if (!isLocationEnabled()) {
+                        // If location services are disabled, show a toast message to the user
+                        Toast.makeText(DisplayMaps.this, "Location services are disabled. Please enable them.", Toast.LENGTH_SHORT).show();
 
-                    // Create an intent to open the location settings on the device
-                    Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                        // Create an intent to open the location settings on the device
+                        Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
 
-                    // Launch the location settings intent to prompt the user
-                    locationSettingsLauncher.launch(intent);
-                } else {
-                    // If location services are enabled, call the method to get the current location
-                    getCurrentLocation();
+                        // Launch the location settings intent to prompt the user
+                        locationSettingsLauncher.launch(intent);
+                    } else {
+                        // If location services are enabled, call the method to get the current location
+                        getCurrentLocation();
+                    }
                 }
-
                 // Schedule the runnable to run again after 3 seconds
                 locationCheckHandler.postDelayed(this, 3000);
             }
+
         };
 
         // Start the location check runnable immediately
         locationCheckHandler.post(locationCheckRunnable);
     }
-
-
 
     /**
      * Stops the location check when the activity is destroyed to avoid memory leaks.
@@ -483,8 +490,8 @@ public class DisplayMaps extends AppCompatActivity {
      */
     private void updateMapLocation(double latitude, double longitude) {
 
-    //OSMdroid map update
-        if (isInitialised){ //Check if an instance of OSM is initialized
+        //OSMdroid map update
+        if (isInitialised) { //Check if an instance of OSM is initialized
 
             if (isInternetAvailable()) { //Check if internet is available
 
@@ -517,6 +524,23 @@ public class DisplayMaps extends AppCompatActivity {
                             marker.setPosition(new GeoPoint(latitude, longitude));
                             marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
                             marker.setTitle("Current Location");
+                            marker.setDraggable(true);
+                            marker.setOnMarkerDragListener(new Marker.OnMarkerDragListener() {
+                                @Override
+                                public void onMarkerDragStart(Marker marker) {
+                                    isPaused = true;
+                                }
+                                @Override
+                                public void onMarkerDrag(Marker marker) {
+                                }
+                                @Override
+                                public void onMarkerDragEnd(Marker marker) {
+                                    locationCheckHandler.postDelayed(() -> {
+
+                                        isPaused = false;
+                                    }, 10000);
+                                }
+                            });
 
                             // Add the marker to the map
                             osmMapView.getOverlays().add(marker);
@@ -566,7 +590,23 @@ public class DisplayMaps extends AppCompatActivity {
                                 marker.setPosition(new GeoPoint(latitude, longitude));
                                 marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
                                 marker.setTitle("Current Location");
+                                marker.setDraggable(true);
+                                marker.setOnMarkerDragListener(new Marker.OnMarkerDragListener() {
+                                    @Override
+                                    public void onMarkerDragStart(Marker marker) {
+                                        isPaused = true;
+                                    }
+                                    @Override
+                                    public void onMarkerDrag(Marker marker) {
+                                    }
+                                    @Override
+                                    public void onMarkerDragEnd(Marker marker) {
+                                        locationCheckHandler.postDelayed(() -> {
 
+                                            isPaused = false;
+                                        }, 10000);
+                                    }
+                                });
                                 // Add the marker to the map
                                 MBTilesMapView.getOverlays().add(marker);
                                 // Toast.makeText(getApplicationContext(), "Marker added after map load", Toast.LENGTH_SHORT).show();
@@ -602,9 +642,6 @@ public class DisplayMaps extends AppCompatActivity {
 //            }
 
 
-
-
-
     /**
      * Checks if a marker already exists on either offline on online map depending on the connection.
      *
@@ -614,11 +651,11 @@ public class DisplayMaps extends AppCompatActivity {
     private boolean hasMarker() {
         if (isInternetAvailable()) {
             if (osmMapView != null) {
-            for (Overlay overlay : osmMapView.getOverlays()) {
-                if (overlay instanceof Marker) {
-                    return true;  // A marker exists on the map
+                for (Overlay overlay : osmMapView.getOverlays()) {
+                    if (overlay instanceof Marker) {
+                        return true;  // A marker exists on the map
+                    }
                 }
-            }
             }
 
         } else {
@@ -632,6 +669,50 @@ public class DisplayMaps extends AppCompatActivity {
 
         }
         return false;
+    }
+
+    /**
+     * Saves the adjusted location (latitude and longitude) to a CSV file in the Downloads folder.
+     *
+     * @param longitude The longitude of the adjusted location.
+     * @param latitude  The latitude of the adjusted location.
+     */
+    private void saveLocationToCSV(double longitude, double latitude) {
+        // Prepare the CSV data as a string
+        String csvData = "Latitude,Longitude\n" + latitude + "," + longitude;
+
+        // Define the content values for the CSV file
+        ContentValues values = new ContentValues();
+        values.put(MediaStore.MediaColumns.DISPLAY_NAME, "coordinates.csv");  // File name
+        values.put(MediaStore.MediaColumns.MIME_TYPE, "text/csv");  // File type (CSV)
+        values.put(MediaStore.MediaColumns.RELATIVE_PATH, "Download/");  // Save the file in the Downloads directory
+
+        // Get the ContentResolver to handle the file insertion
+        ContentResolver resolver = getContentResolver();
+        Uri uri = null;
+
+        // For Android 10 (API level 29) and above, use MediaStore to create the file
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            uri = resolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, values);
+        }
+
+        // If the URI was successfully created, write the CSV data to the file
+        if (uri != null) {
+            try (OutputStream outputStream = resolver.openOutputStream(uri)) {
+                if (outputStream != null) {
+                    outputStream.write(csvData.getBytes());  // Write the CSV data to the file
+                    Toast.makeText(this, "CSV saved to Downloads folder", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(this, "Failed to create output", Toast.LENGTH_SHORT).show();
+                }
+            } catch (Exception e) {
+                // Handle any errors that occur during the file writing process
+                e.printStackTrace();
+                Toast.makeText(this, "Error saving CSV: " + e.getMessage(), Toast.LENGTH_LONG).show();
+            }
+        } else {
+            Toast.makeText(this, "Error creating CSV file", Toast.LENGTH_SHORT).show();
+        }
     }
 }
 //private void loadOfflineMap() {
