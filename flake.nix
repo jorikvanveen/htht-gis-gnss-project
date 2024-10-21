@@ -15,8 +15,9 @@
         buildInputs = with pkgs; [
           jdk
           gradle
-	      android-studio
+	        android-studio
           android-tools
+          jdt-language-server
         ];
       };
     }
