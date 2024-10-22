@@ -7,6 +7,8 @@ public final class FloatAnswer implements Answer {
     public FloatAnswer(float value) {
         this.value = value;
     }
+    public FloatAnswer(){
 
+    }
 
 }

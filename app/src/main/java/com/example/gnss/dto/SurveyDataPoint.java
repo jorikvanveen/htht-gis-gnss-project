@@ -12,6 +12,9 @@ public class SurveyDataPoint {
         this.lat = lat;
         this.answers = answers;
     }
+    public SurveyDataPoint(){
+
+    }
 
     public double getLon() {
         return lon;

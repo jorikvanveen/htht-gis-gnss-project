@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.LinearLayout;
+import android.widget.PopupMenu;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -34,8 +35,8 @@ public class EditEntries extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_edit_entries);
 
-        LinearLayout surveyList = this.findViewById(R.id.survey_list);
-        LayoutInflater inflater = this.getLayoutInflater();
+
+
 
         vault = DataVault.getInstance(this);
         Intent receivedIntent = getIntent();
@@ -46,33 +47,46 @@ public class EditEntries extends AppCompatActivity {
 
 
 
+
+        LinearLayout surveyList = this.findViewById(R.id.survey_list);
+
         for (int j = 0; j < entries.size(); j++) {
-
-
-
-            View surveyPreview = inflater.inflate(R.layout.survey_preview_edit_entry, surveyList);
+            LayoutInflater inflater = this.getLayoutInflater();
+            View surveyPreview = inflater.inflate(R.layout.survey_preview, surveyList, false);
             TextView surveyNameView = surveyPreview.findViewById(R.id.survey_name);
+            surveyNameView.setText(survey.getName());
+            final int entryIndex = j;
             String entryText = "Entry " +j;
             surveyNameView.setText(entryText);
 
-            MaterialButton collectButton = surveyPreview.findViewById(R.id.editButton);
-            final int entryIndex = j;
-            Toast.makeText(this, j, Toast.LENGTH_SHORT).show();
+            surveyPreview.setOnClickListener(v -> {
+                Intent intent = new Intent(this, EditSingleEntry.class);
+                intent.putExtra("survey_id", survey.getId());
+                intent.putExtra("entry_id", entryIndex);
 
-//            collectButton.setOnClickListener(v -> {
-//                Intent intent = new Intent(this, EditEntries.class);
-//                intent.putExtra("survey_id", survey.getId());
-//                intent.putExtra("entry_id", entryIndex);
-//
-//                startActivity(intent);
-//
-//            });
+                startActivity(intent);
+
+
+            });
+
+            MaterialButton optionsButton = surveyPreview.findViewById(R.id.survey_preview_threedot);
+            optionsButton.setOnClickListener(v -> {
+                var popupMenu = new PopupMenu(this, optionsButton);
+                popupMenu.getMenuInflater().inflate(R.menu.entry_options, popupMenu.getMenu());
+                popupMenu.setOnMenuItemClickListener(item -> {
+                    if (item.getItemId() == R.id.action_delete_survey) {
+                        // TODO
+                    }
+
+
+                    return true;
+                });
+                popupMenu.show();
+            });
+            surveyList.addView(surveyPreview);
+
         }
 
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
-            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
-            return insets;
-        });
+
     }
 }

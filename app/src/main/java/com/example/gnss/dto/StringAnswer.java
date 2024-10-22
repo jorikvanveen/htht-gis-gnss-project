@@ -7,5 +7,9 @@ public final class StringAnswer implements Answer {
         this.value = value;
     }
 
+    public StringAnswer(){
+
+    }
+
 
 }

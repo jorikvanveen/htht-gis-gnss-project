@@ -159,6 +159,7 @@ public class DataVault implements Serializable {
         kryo.register(BooleanAnswer.class);
         kryo.register(StringAnswer.class);
         kryo.register(FloatAnswer.class);
+        kryo.register(SurveyDataPoint.class);
 
         Input input;
         try {

@@ -7,5 +7,9 @@ public final class BooleanAnswer implements Answer {
         this.value = value;
     }
 
+    public BooleanAnswer(){
+
+    }
+
 
 }

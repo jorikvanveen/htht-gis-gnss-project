@@ -189,6 +189,7 @@ public class SaveEntry extends AppCompatActivity {
                 SurveyDataPoint entry = new SurveyDataPoint(latitude, longitude, answers);
                 vault.saveEntry(surveyId, entry);
                 DataVault.save(this);
+                finish();
             }
         }
 

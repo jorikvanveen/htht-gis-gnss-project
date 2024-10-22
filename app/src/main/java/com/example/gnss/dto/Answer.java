@@ -1,6 +1,8 @@
 package com.example.gnss.dto;
 
 public sealed interface Answer permits BooleanAnswer, FloatAnswer, IntAnswer, StringAnswer {
+
+
     //    private float value;
 //    private SurveyQuestionType questionType;
 //    public Answer(float value, SurveyQuestionType type)  {
