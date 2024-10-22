@@ -28,4 +28,24 @@ public class Survey implements Serializable {
         this.name = name;
         this.questions = questions.orElse(new ArrayList<>());
     }
+
+    public UUID getId() {
+        return id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public ArrayList<SurveyQuestion> getQuestions() {
+        return questions;
+    }
+
+    public void setQuestions(ArrayList<SurveyQuestion> questions) {
+        this.questions = questions;
+    }
 }

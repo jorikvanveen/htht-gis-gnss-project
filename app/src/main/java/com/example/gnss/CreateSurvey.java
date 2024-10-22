@@ -1,5 +1,6 @@
 package com.example.gnss;
 
+import android.content.Intent;
 import android.graphics.ColorFilter;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
@@ -132,8 +133,11 @@ public class CreateSurvey extends AppCompatActivity {
     public void onSave(View view) throws IOException {
         Survey survey = this.readFormData();
 
-        vault.surveys.add(survey);
+        vault.surveys.put(survey.getId(), survey);
         DataVault.save(this);
+
+        Intent intent = new Intent(this, MainActivity.class);
+        this.startActivity(intent);
     }
 
     public Survey readFormData() {
@@ -154,7 +158,7 @@ public class CreateSurvey extends AppCompatActivity {
             assert maybeQuestionType.isPresent();
             SurveyQuestionType questionType = maybeQuestionType.get();
 
-            questions.add(new SurveyQuestion(Optional.empty(), questionType, prompt));
+            questions.add(new SurveyQuestion(questionType, prompt));
         }
 
         String name = ((EditText) findViewById(R.id.createSurveyNameInput)).getText().toString();
