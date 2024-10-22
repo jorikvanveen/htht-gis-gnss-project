@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/action_view_survey_entries"
+        android:title="View entries" />
+    <item
+        android:id="@+id/action_export_questions"
+        android:title="Export questions" />
+    <item
+        android:id="@+id/action_delete_survey"
+        android:title="Delete" />
+</menu>

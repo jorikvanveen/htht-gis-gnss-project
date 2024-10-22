@@ -29,6 +29,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Button;
 import android.widget.LinearLayout;
+import android.widget.PopupMenu;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -57,13 +58,35 @@ public class MainActivity extends AppCompatActivity {
                 TextView surveyNameView = surveyPreview.findViewById(R.id.survey_name);
                 surveyNameView.setText(survey.getName());
 
-                MaterialButton collectButton = surveyPreview.findViewById(R.id.collect_button);
-                collectButton.setOnClickListener(v -> {
+                surveyPreview.setOnClickListener(v -> {
                     Intent intent = new Intent(this, DisplayMaps.class);
                     intent.putExtra("survey_id", survey.getId());
                     startActivity(intent);
                 });
+
+                MaterialButton optionsButton = surveyPreview.findViewById(R.id.survey_preview_threedot);
+                optionsButton.setOnClickListener(v -> {
+                    var popupMenu = new PopupMenu(this, optionsButton);
+                    popupMenu.getMenuInflater().inflate(R.menu.survey_options, popupMenu.getMenu());
+                    popupMenu.setOnMenuItemClickListener(item -> {
+                        if (item.getItemId() == R.id.action_delete_survey) {
+                            // TODO
+                        }
+
+                        if (item.getItemId() == R.id.action_export_questions) {
+                            // TODO
+                        }
+
+                        if (item.getItemId() == R.id.action_view_survey_entries) {
+                            // TODO
+                        }
+
+                        return true;
+                    });
+                    popupMenu.show();
+                });
                 surveyList.addView(surveyPreview);
+
             }
         }
 
