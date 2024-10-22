@@ -25,6 +25,7 @@ import com.example.gnss.dto.SurveyDataPoint;
 import com.example.gnss.dto.SurveyQuestion;
 import com.example.gnss.dto.SurveyQuestionType;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -171,5 +172,15 @@ public class DataVault implements Serializable {
 
         didLoad = true;
         return vault;
+    }
+
+    public void readFile(byte[] inputFile) {
+        ByteArrayInputStream inputStream = new ByteArrayInputStream(inputFile);
+        Input input = new Input(inputStream);
+
+        Survey inputSurvey = kryo.readObject(input, Survey.class);
+        input.close();
+
+        surveys.put(inputSurvey.getId(), inputSurvey);
     }
 }
