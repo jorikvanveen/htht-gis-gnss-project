@@ -35,6 +35,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 
+import com.example.gnss.dto.Survey;
+import com.example.gnss.singleton.DataVault;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.Task;
@@ -63,6 +65,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Set;
+import java.util.UUID;
 
 public class DisplayMaps extends AppCompatActivity {
 
@@ -112,6 +115,12 @@ public class DisplayMaps extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState); // Call the superclass method to perform the default initialization
+
+        DataVault vault = DataVault.getInstance(this);
+        Intent receivedIntent = getIntent();
+        UUID surveyId = (UUID) receivedIntent.getExtras().get("survey_id");
+        Survey survey = vault.getSurvey(surveyId).get();
+
 
         // Initialize OSMDroid configuration for map functionality
         Configuration.getInstance().load(this, getPreferences(MODE_PRIVATE));

@@ -21,6 +21,7 @@ import com.example.gnss.dto.FloatAnswer;
 import com.example.gnss.dto.IntAnswer;
 import com.example.gnss.dto.StringAnswer;
 import com.example.gnss.dto.Survey;
+import com.example.gnss.dto.SurveyDataPoint;
 import com.example.gnss.dto.SurveyQuestion;
 import com.example.gnss.dto.SurveyQuestionType;
 
@@ -32,7 +33,10 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -44,18 +48,50 @@ public class DataVault implements Serializable {
     private static final Kryo kryo = new Kryo();
     private static final Lock loading = new ReentrantLock();
 
-    public @NonNull ArrayList<Survey> surveys;
-
-    private DataVault(@NonNull ArrayList<Survey> surveys) {
+    private @NonNull HashMap<UUID, Survey> surveys;
+    private @NonNull HashMap<UUID, ArrayList<SurveyDataPoint>> entries;
+    private DataVault(@NonNull HashMap<UUID, Survey> surveys) {
         this.surveys = surveys;
     }
 
     private DataVault() {
-        this.surveys = new ArrayList<>();
+        this.surveys = new HashMap<UUID, Survey>();
+        this.entries = new HashMap<>();
+    }
+
+    public Optional<Survey> getSurvey(UUID id) {
+        Survey survey = this.surveys.get(id);
+        if (survey == null) {
+            return Optional.empty();
+        }
+
+        return Optional.of(survey);
+    }
+
+    public Collection<Survey> surveys() {
+        return this.surveys.values();
+    }
+
+    public ArrayList<SurveyDataPoint> getSurveyEntries(UUID survey_id) {
+        ArrayList<SurveyDataPoint> entries = this.entries.get(survey_id);
+        if (entries == null) {
+            Log.w("GNSS", "WARNING: Survey was not found. ID: " + survey_id.toString());
+            return new ArrayList<>();
+        }
+
+        return entries;
+    }
+
+    public void addSurvey(Survey survey) {
+        this.surveys.put(survey.getId(), survey);
+    }
+
+    public void saveEntry(UUID survey_id, SurveyDataPoint entry) {
+        ArrayList<SurveyDataPoint> entries = this.entries.computeIfAbsent(survey_id, k -> new ArrayList<>());
+        entries.add(entry);
     }
 
     public static void save(@NonNull Context context) throws IOException {
-        File filesDir = context.getFilesDir();
         Output out;
         try {
             out = new Output(context.openFileOutput("data.bin", Context.MODE_PRIVATE));
@@ -96,7 +132,7 @@ public class DataVault implements Serializable {
                 instance = vault;
                 loading.notifyAll();
             } catch (IOException e) {
-                new RuntimeException(e);
+                throw new RuntimeException(e);
             }
         }
         isCreating = false;
@@ -109,12 +145,14 @@ public class DataVault implements Serializable {
             throw new RuntimeException("DataVault.loadOrCreate called twice! Something is very wrong!");
         }
 
+        kryo.register(HashMap.class);
+        kryo.register(ArrayList.class);
+        kryo.register(UUID.class, new DefaultSerializers.UUIDSerializer());
+
         kryo.register(Survey.class);
         kryo.register(SurveyQuestion.class);
         kryo.register(SurveyQuestionType.class);
         kryo.register(DataVault.class);
-        kryo.register(ArrayList.class);
-        kryo.register(UUID.class, new DefaultSerializers.UUIDSerializer());
         kryo.register(Answer.class);
         kryo.register(IntAnswer.class);
         kryo.register(BooleanAnswer.class);
@@ -126,7 +164,7 @@ public class DataVault implements Serializable {
             input = new Input(context.openFileInput("data.bin"));
         } catch (FileNotFoundException e) {
             Log.d("GNSS", "No existing vault found, creating new");
-            return new DataVault(new ArrayList<>());
+            return new DataVault(new HashMap<>());
         }
 
         DataVault vault = kryo.readObject(new Input(input), DataVault.class);

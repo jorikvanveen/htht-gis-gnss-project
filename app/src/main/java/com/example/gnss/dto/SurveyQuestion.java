@@ -10,16 +10,13 @@ import java.util.Optional;
  * Represents a single survey question.
  */
 public class SurveyQuestion implements Serializable {
-    private UUID id;
     private SurveyQuestionType type;
     private String prompt;
 
     private SurveyQuestion() {}
 
-    public SurveyQuestion(@NonNull Optional<UUID> id,
-                          @NonNull SurveyQuestionType type,
+    public SurveyQuestion(@NonNull SurveyQuestionType type,
                           @NonNull String prompt) {
-        this.id = id.orElse(UUID.randomUUID());
         this.type = type;
         this.prompt = prompt;
     }
@@ -38,13 +35,5 @@ public class SurveyQuestion implements Serializable {
 
     public void setPrompt(String prompt) {
         this.prompt = prompt;
-    }
-
-    public UUID getId() {
-        return id;
-    }
-
-    public void setId(UUID id) {
-        this.id = id;
     }
 }
