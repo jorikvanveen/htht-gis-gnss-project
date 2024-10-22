@@ -7,7 +7,6 @@ public final class IntAnswer implements Answer {
         this.value = value;
     }
 
-    public int getValue() {
-        return this.value;
-    }
+
+
 }

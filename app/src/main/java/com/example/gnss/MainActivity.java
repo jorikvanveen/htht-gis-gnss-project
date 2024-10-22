@@ -50,6 +50,8 @@ public class MainActivity extends AppCompatActivity {
             setContentView(binding.getRoot());
 
             DataVault vault = DataVault.getInstance(this);
+
+
             LinearLayout surveyList = this.findViewById(R.id.survey_list);
 
             for (Survey survey : vault.surveys())  {
@@ -78,7 +80,9 @@ public class MainActivity extends AppCompatActivity {
                         }
 
                         if (item.getItemId() == R.id.action_view_survey_entries) {
-                            // TODO
+                            Intent intent = new Intent(this, EditEntries.class);
+                            intent.putExtra("survey_id", survey.getId());
+                            startActivity(intent);
                         }
 
                         return true;
@@ -89,7 +93,10 @@ public class MainActivity extends AppCompatActivity {
 
             }
         }
-
+        public void goToEditEntries(View view){
+            Intent intent = new Intent(this, EditEntries.class);
+            startActivity(intent);
+        }
         public void goToDisplayMaps(View view){
             Intent intent = new Intent(this, DisplayMaps.class);
             startActivity(intent);
