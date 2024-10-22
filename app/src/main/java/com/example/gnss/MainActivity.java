@@ -33,6 +33,7 @@ import android.widget.PopupMenu;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.IOException;
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
@@ -70,7 +71,15 @@ public class MainActivity extends AppCompatActivity {
                     popupMenu.getMenuInflater().inflate(R.menu.survey_options, popupMenu.getMenu());
                     popupMenu.setOnMenuItemClickListener(item -> {
                         if (item.getItemId() == R.id.action_delete_survey) {
-                            // TODO
+                            vault.deleteSurvey(survey.getId());
+                            try {
+                                DataVault.save(this);
+                            } catch (IOException e) {
+                                // TODO: Handle this more elegantly
+                                throw new RuntimeException(e);
+                            }
+                            // Refresh the list
+                            recreate();
                         }
 
                         if (item.getItemId() == R.id.action_export_questions) {
@@ -111,5 +120,8 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
-
+        private static String makeFilenameFriendly(String input) {
+            // Replace any character that is not a letter, number, hyphen, underscore, or dot with an underscore
+            return input.replaceAll("[^a-zA-Z0-9-_\\.]", "_");
+        }
 }
