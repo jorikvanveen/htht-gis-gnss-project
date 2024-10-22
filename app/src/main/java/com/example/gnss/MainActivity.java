@@ -50,10 +50,10 @@ public class MainActivity extends AppCompatActivity {
 
             DataVault vault = DataVault.getInstance(this);
             LinearLayout surveyList = this.findViewById(R.id.survey_list);
-            LayoutInflater inflater = this.getLayoutInflater();
 
             for (Survey survey : vault.surveys())  {
-                View surveyPreview = inflater.inflate(R.layout.survey_preview, surveyList);
+                LayoutInflater inflater = this.getLayoutInflater();
+                View surveyPreview = inflater.inflate(R.layout.survey_preview, surveyList, false);
                 TextView surveyNameView = surveyPreview.findViewById(R.id.survey_name);
                 surveyNameView.setText(survey.getName());
 
@@ -63,6 +63,7 @@ public class MainActivity extends AppCompatActivity {
                     intent.putExtra("survey_id", survey.getId());
                     startActivity(intent);
                 });
+                surveyList.addView(surveyPreview);
             }
         }
 
