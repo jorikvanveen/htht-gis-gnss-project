@@ -133,7 +133,7 @@ public class CreateSurvey extends AppCompatActivity {
     public void onSave(View view) throws IOException {
         Survey survey = this.readFormData();
 
-        vault.surveys.put(survey.getId(), survey);
+        vault.addSurvey(survey);
         DataVault.save(this);
 
         Intent intent = new Intent(this, MainActivity.class);

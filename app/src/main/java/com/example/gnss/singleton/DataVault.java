@@ -81,6 +81,10 @@ public class DataVault implements Serializable {
         return entries;
     }
 
+    public void addSurvey(Survey survey) {
+        this.surveys.put(survey.getId(), survey);
+    }
+
     public void saveEntry(UUID survey_id, SurveyDataPoint entry) {
         ArrayList<SurveyDataPoint> entries = this.entries.computeIfAbsent(survey_id, k -> new ArrayList<>());
         entries.add(entry);
