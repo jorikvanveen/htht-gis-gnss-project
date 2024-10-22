@@ -181,6 +181,6 @@ public class DataVault implements Serializable {
         Survey inputSurvey = kryo.readObject(input, Survey.class);
         input.close();
 
-        surveys.add(inputSurvey);
+        surveys.put(inputSurvey.getId(), inputSurvey);
     }
 }
