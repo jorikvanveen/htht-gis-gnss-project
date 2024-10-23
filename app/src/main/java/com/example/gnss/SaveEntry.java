@@ -192,17 +192,14 @@ public class SaveEntry extends AppCompatActivity {
             else if (inputField instanceof EditText) {
                 SurveyQuestionType type = questions.get(i-1).getType();
                 String answer = ((EditText) inputField).getText().toString();
-                if (validateAndRegisterAnswer(answer, type, this, i)) {
-                    Toast.makeText(this, "Answer to question " + (i + 1) + ": " + answer, Toast.LENGTH_SHORT).show();
-                } else {
-                    break;
+                if (!validateAndRegisterAnswer(answer, type, this, i)) {
+                   break;
+
                 }
             }else if (inputField instanceof Spinner) {
                     SurveyQuestionType type = questions.get(i-1).getType();
                     String answer = ((Spinner) inputField).getSelectedItem().toString();
-                if (validateAndRegisterAnswer(answer, type, this, i)) {
-                    Toast.makeText(this, "Added boolean answer: "+i+1, Toast.LENGTH_SHORT).show();
-                } else {
+                if (!validateAndRegisterAnswer(answer, type, this, i)) {
                     break;
                 }
             }

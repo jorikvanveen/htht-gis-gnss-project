@@ -129,13 +129,6 @@ public class DisplayMaps extends AppCompatActivity {
         UUID surveyId = (UUID) receivedIntent.getExtras().get("survey_id");
         survey = vault.getSurvey(surveyId).get();
 
-        ArrayList<SurveyQuestion> questions = survey.getQuestions();
-
-        for(SurveyQuestion question : questions){
-            Toast.makeText(this, question.getPrompt(), Toast.LENGTH_SHORT).show();
-        }
-
-
 
         // Initialize OSMDroid configuration for map functionality
         Configuration.getInstance().load(this, getPreferences(MODE_PRIVATE));
