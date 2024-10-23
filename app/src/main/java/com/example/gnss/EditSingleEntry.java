@@ -46,9 +46,13 @@ public class EditSingleEntry extends AppCompatActivity {
 
     private ArrayList<Answer> answers;
 
-    ArrayList<SurveyQuestion> questions;
+    private ArrayList<SurveyQuestion> questions;
 
-    UUID surveyId;
+    private int entryId;
+
+    private String name;
+
+    private UUID surveyId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,7 +63,7 @@ public class EditSingleEntry extends AppCompatActivity {
         inputFields = new ArrayList<>();
         answers = new ArrayList<>();
 
-        int entryId = getIntent().getIntExtra("entry_id", 0);
+        entryId = getIntent().getIntExtra("entry_id", 0);
         vault = DataVault.getInstance(this);
         Intent receivedIntent = getIntent();
         surveyId = (UUID) receivedIntent.getExtras().get("survey_id");
@@ -67,11 +71,14 @@ public class EditSingleEntry extends AppCompatActivity {
         ArrayList<SurveyDataPoint> entries = vault.getSurveyEntries(surveyId);
 
         SurveyDataPoint entry = entries.get(entryId);
+
+
         survey = vault.getSurvey(surveyId).get();
         questions = survey.getQuestions();
 
         latitude = entry.getLat();
         longitude = entry.getLon();
+        name = entry.getName();
 
         Button submitButton = findViewById(R.id.submitButton);
         submitButton.setOnClickListener(v -> {
@@ -86,6 +93,7 @@ public class EditSingleEntry extends AppCompatActivity {
 
         EditText displayLat = new EditText(this);
         EditText displayLon = new EditText(this);
+        EditText displayName = new EditText(this);
 
 
 
@@ -93,24 +101,33 @@ public class EditSingleEntry extends AppCompatActivity {
         lat.setText("Latitude");
         TextView lon = new TextView(this);
         lon.setText("Longitude");
+        TextView nameView = new TextView(this);
+        nameView.setText("Name");
+
         String doubleLat = Double.toString(latitude);
         String doubleLon = Double.toString(longitude);
 
 
+
         displayLat.setText(doubleLat);
         displayLon.setText(doubleLon);
+        displayName.setText(name);
         answerContainer.addView(lat);
         answerContainer.addView(displayLat);
         answerContainer.addView(lon);
         answerContainer.addView(displayLon);
+        answerContainer.addView(nameView);
+        answerContainer.addView(displayName);
 
         inputFields.add(displayLon);
         inputFields.add(displayLat);
-
+        inputFields.add(displayName);
 
         ArrayList<Answer> answers = entry.getAnswers();
         ArrayList<String> answerStrings = new ArrayList<>();
         var questions = survey.getQuestions();
+
+
 
         for (int i = 0; i < questions.size(); i++) {
             var question = questions.get(i);
@@ -185,9 +202,12 @@ public class EditSingleEntry extends AppCompatActivity {
                     break;
                 }
             }
+            else if (i ==2){
+                name = ((EditText) inputField).getText().toString();
+            }
             // Determine the type of input and collect the answer
             else if (inputField instanceof EditText) {
-                SurveyQuestionType type = questions.get(i-2).getType();
+                SurveyQuestionType type = questions.get(i-3).getType();
                 String answer = ((EditText) inputField).getText().toString();
                 if (validateAndRegisterAnswer(answer, type, this, i)) {
                     Toast.makeText(this, "Answer to question " + (i + 1) + ": " + answer, Toast.LENGTH_SHORT).show();
@@ -195,7 +215,7 @@ public class EditSingleEntry extends AppCompatActivity {
                     break;
                 }
             } else if (inputField instanceof Spinner) {
-                SurveyQuestionType type = questions.get(i-2).getType();
+                SurveyQuestionType type = questions.get(i-3).getType();
                 String answer = ((Spinner) inputField).getSelectedItem().toString();
                 if (validateAndRegisterAnswer(answer, type, this, i)) {
                     Toast.makeText(this, "Answer to question " + (i + 1) + ": " + answer, Toast.LENGTH_SHORT).show();
@@ -204,8 +224,8 @@ public class EditSingleEntry extends AppCompatActivity {
                 }
             }
             if (inputFields.size() == i + 1) {
-                SurveyDataPoint entry = new SurveyDataPoint(latitude, longitude, answers);
-                vault.saveEntry(surveyId, entry);
+                SurveyDataPoint entry = new SurveyDataPoint(name, latitude, longitude, answers);
+                vault.getSurveyEntries(surveyId).set(entryId, entry);
                 DataVault.save(this);
                 finish();
             }

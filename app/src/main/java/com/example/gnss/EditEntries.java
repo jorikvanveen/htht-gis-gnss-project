@@ -28,6 +28,7 @@ import com.example.gnss.dto.SurveyQuestionType;
 import com.example.gnss.singleton.DataVault;
 import com.google.android.material.button.MaterialButton;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.UUID;
 
@@ -57,12 +58,13 @@ public class EditEntries extends AppCompatActivity {
         LinearLayout surveyList = this.findViewById(R.id.survey_list);
 
         for (int j = 0; j < entries.size(); j++) {
+
             LayoutInflater inflater = this.getLayoutInflater();
             View surveyPreview = inflater.inflate(R.layout.survey_preview, surveyList, false);
             TextView surveyNameView = surveyPreview.findViewById(R.id.survey_name);
             surveyNameView.setText(survey.getName());
             final int entryIndex = j;
-            String entryText = "Entry " +j;
+            String entryText = entries.get(entryIndex).getName();
             surveyNameView.setText(entryText);
 
             surveyPreview.setOnClickListener(v -> {
@@ -82,6 +84,15 @@ public class EditEntries extends AppCompatActivity {
                 popupMenu.setOnMenuItemClickListener(item -> {
                     if (item.getItemId() == R.id.action_delete_survey) {
                         // TODO
+                       vault.getSurveyEntries(surveyId).remove(entries.get(entryIndex));
+                        try {
+                            DataVault.save(this);
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
+                        recreate();
+
+
                     }
 
                     return true;
@@ -93,5 +104,12 @@ public class EditEntries extends AppCompatActivity {
         }
 
 
+    }
+
+
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        recreate();
     }
 }

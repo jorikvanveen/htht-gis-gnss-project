@@ -44,13 +44,15 @@ public class SaveEntry extends AppCompatActivity {
 
     private LinearLayout questionContainer;
     private List<View> inputFields;
-    double latitude;
-    double longitude;
+    private double latitude;
+    private double longitude;
 
     private ArrayList<Answer> answers;
 
 
     private UUID surveyId;
+
+    private String name;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,6 +82,17 @@ public class SaveEntry extends AppCompatActivity {
         questions = survey.getQuestions();
 
         addLatLon();
+
+        TextView nameText = new TextView(this);
+        nameText.setText("Name");
+        EditText editTextName = new EditText(this);
+        String nameTextString = "Entry " + vault.getSurveyEntries(surveyId).size();
+        editTextName.setText(nameTextString);
+
+        inputFields.add(editTextName);
+        questionContainer.addView(nameText);
+        questionContainer.addView(editTextName);
+
 
         for(SurveyQuestion question : questions){
             addQuestionToLayout(question);
@@ -165,12 +178,19 @@ public class SaveEntry extends AppCompatActivity {
 
         // Iterate through all input fields and collect answers
         for (int i = 0; i < inputFields.size(); i++) {
+
             View inputField = inputFields.get(i);
 
-            SurveyQuestionType type = questions.get(i).getType();
+
+            if (i == 0 ){
+                name = ((EditText)inputField).getText().toString();
+
+            }
+
 
             // Determine the type of input and collect the answer
-            if (inputField instanceof EditText) {
+            else if (inputField instanceof EditText) {
+                SurveyQuestionType type = questions.get(i-1).getType();
                 String answer = ((EditText) inputField).getText().toString();
                 if (validateAndRegisterAnswer(answer, type, this, i)) {
                     Toast.makeText(this, "Answer to question " + (i + 1) + ": " + answer, Toast.LENGTH_SHORT).show();
@@ -178,6 +198,7 @@ public class SaveEntry extends AppCompatActivity {
                     break;
                 }
             }else if (inputField instanceof Spinner) {
+                    SurveyQuestionType type = questions.get(i-1).getType();
                     String answer = ((Spinner) inputField).getSelectedItem().toString();
                 if (validateAndRegisterAnswer(answer, type, this, i)) {
                     Toast.makeText(this, "Added boolean answer: "+i+1, Toast.LENGTH_SHORT).show();
@@ -186,7 +207,7 @@ public class SaveEntry extends AppCompatActivity {
                 }
             }
             if(inputFields.size() == i+1){
-                SurveyDataPoint entry = new SurveyDataPoint(latitude, longitude, answers);
+                SurveyDataPoint entry = new SurveyDataPoint(name, latitude, longitude, answers);
                 vault.saveEntry(surveyId, entry);
                 DataVault.save(this);
                 finish();
