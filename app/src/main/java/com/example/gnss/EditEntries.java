@@ -2,6 +2,7 @@ package com.example.gnss;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.LinearLayout;
@@ -15,8 +16,15 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.example.gnss.dto.Answer;
+import com.example.gnss.dto.BooleanAnswer;
+import com.example.gnss.dto.FloatAnswer;
+import com.example.gnss.dto.IntAnswer;
+import com.example.gnss.dto.StringAnswer;
 import com.example.gnss.dto.Survey;
 import com.example.gnss.dto.SurveyDataPoint;
+import com.example.gnss.dto.SurveyQuestion;
+import com.example.gnss.dto.SurveyQuestionType;
 import com.example.gnss.singleton.DataVault;
 import com.google.android.material.button.MaterialButton;
 
@@ -45,8 +53,30 @@ public class EditEntries extends AppCompatActivity {
 
         ArrayList<SurveyDataPoint> entries = vault.getSurveyEntries(surveyId);
 
+        var questions = survey.getQuestions();
 
+        for (int i = 0; i < questions.size(); i++) {
+            var question = questions.get(i);
+            var questionType = question.getType();
+            var entry = entries.get(i);
 
+            for (Answer genAnswer : entry.getAnswers()) {
+                switch (questionType) {
+                    case String -> {
+                        StringAnswer answer = (StringAnswer) genAnswer;
+                    }
+                    case Float -> {
+                        FloatAnswer answer = (FloatAnswer) genAnswer;
+                    }
+                    case Integer -> {
+                        IntAnswer answer = (IntAnswer) genAnswer;
+                    }
+                    case Boolean -> {
+                        BooleanAnswer answer = (BooleanAnswer) genAnswer;
+                    }
+                }
+            }
+        }
 
         LinearLayout surveyList = this.findViewById(R.id.survey_list);
 
@@ -77,7 +107,6 @@ public class EditEntries extends AppCompatActivity {
                     if (item.getItemId() == R.id.action_delete_survey) {
                         // TODO
                     }
-
 
                     return true;
                 });
