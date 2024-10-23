@@ -109,6 +109,34 @@ public class EditSingleEntry extends AppCompatActivity {
 
 
         ArrayList<Answer> answers = entry.getAnswers();
+        ArrayList<String> answerStrings = new ArrayList<>();
+        var questions = survey.getQuestions();
+
+        for (int i = 0; i < questions.size(); i++) {
+            var question = questions.get(i);
+            var questionType = question.getType();
+
+
+            Answer genAnswer = answers.get(i);
+                switch (questionType) {
+                    case String -> {
+                        StringAnswer answer = (StringAnswer) genAnswer;
+                        answerStrings.add(answer.value);
+                    }
+                    case Float -> {
+                        FloatAnswer answer = (FloatAnswer) genAnswer;
+                        answerStrings.add(Float.toString(answer.value));
+                    }
+                    case Integer -> {
+                        IntAnswer answer = (IntAnswer) genAnswer;
+                        answerStrings.add(Integer.toString(answer.value));
+                    }
+                    case Boolean -> {
+                        BooleanAnswer answer = (BooleanAnswer) genAnswer;
+                        answerStrings.add(Boolean.toString(answer.value));
+                    }
+                }
+            }
 
 
         for (int i = 0; i < answers.size(); i++) {
@@ -116,9 +144,7 @@ public class EditSingleEntry extends AppCompatActivity {
             questionPrompt.setHint(questions.get(i).getPrompt());
             TextView questionTextView  = new TextView(this);
             questionTextView.setText(questions.get(i).getPrompt());
-            Answer answer = answers.get(i);
-            questionPrompt.setText(answer.toString());
-            Toast.makeText(this,answer.toString() , Toast.LENGTH_SHORT).show();
+            questionPrompt.setText(answerStrings.get(i));
 
             answerContainer.addView(questionTextView);
             answerContainer.addView(questionPrompt);
@@ -142,7 +168,7 @@ public class EditSingleEntry extends AppCompatActivity {
         for (int i = 0; i < inputFields.size(); i++) {
             View inputField = inputFields.get(i);
 
-            SurveyQuestionType type = questions.get(i).getType();
+
             if (i==0) {
                 try {
                     latitude = Double.parseDouble(((EditText) inputField).getText().toString());
@@ -161,6 +187,7 @@ public class EditSingleEntry extends AppCompatActivity {
             }
             // Determine the type of input and collect the answer
             else if (inputField instanceof EditText) {
+                SurveyQuestionType type = questions.get(i-2).getType();
                 String answer = ((EditText) inputField).getText().toString();
                 if (validateAndRegisterAnswer(answer, type, this, i)) {
                     Toast.makeText(this, "Answer to question " + (i + 1) + ": " + answer, Toast.LENGTH_SHORT).show();
@@ -168,6 +195,7 @@ public class EditSingleEntry extends AppCompatActivity {
                     break;
                 }
             } else if (inputField instanceof Spinner) {
+                SurveyQuestionType type = questions.get(i-2).getType();
                 String answer = ((Spinner) inputField).getSelectedItem().toString();
                 if (validateAndRegisterAnswer(answer, type, this, i)) {
                     Toast.makeText(this, "Answer to question " + (i + 1) + ": " + answer, Toast.LENGTH_SHORT).show();

@@ -53,30 +53,6 @@ public class EditEntries extends AppCompatActivity {
 
         ArrayList<SurveyDataPoint> entries = vault.getSurveyEntries(surveyId);
 
-        var questions = survey.getQuestions();
-
-        for (int i = 0; i < questions.size(); i++) {
-            var question = questions.get(i);
-            var questionType = question.getType();
-            var entry = entries.get(i);
-
-            for (Answer genAnswer : entry.getAnswers()) {
-                switch (questionType) {
-                    case String -> {
-                        StringAnswer answer = (StringAnswer) genAnswer;
-                    }
-                    case Float -> {
-                        FloatAnswer answer = (FloatAnswer) genAnswer;
-                    }
-                    case Integer -> {
-                        IntAnswer answer = (IntAnswer) genAnswer;
-                    }
-                    case Boolean -> {
-                        BooleanAnswer answer = (BooleanAnswer) genAnswer;
-                    }
-                }
-            }
-        }
 
         LinearLayout surveyList = this.findViewById(R.id.survey_list);
 

@@ -180,7 +180,7 @@ public class SaveEntry extends AppCompatActivity {
             }else if (inputField instanceof Spinner) {
                     String answer = ((Spinner) inputField).getSelectedItem().toString();
                 if (validateAndRegisterAnswer(answer, type, this, i)) {
-                    Toast.makeText(this, "Answer to question " + (i + 1) + ": " + answer, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, "Added boolean answer: "+i+1, Toast.LENGTH_SHORT).show();
                 } else {
                     break;
                 }
@@ -206,8 +206,8 @@ public class SaveEntry extends AppCompatActivity {
 
             case Boolean:
                 // Expecting "true" or "false"
-                if (input.equalsIgnoreCase("True") || input.equalsIgnoreCase("False")) {
-                    if (input.equals("True")) {
+                if (input.equalsIgnoreCase("true") || input.equalsIgnoreCase("false")) {
+                    if (input.equalsIgnoreCase("true")) {
                         BooleanAnswer booleanAnswer = new BooleanAnswer(true);
                         answers.add(booleanAnswer);
                     }else{
