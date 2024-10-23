@@ -74,6 +74,8 @@ public class DataVault implements Serializable {
         return this.surveys.values();
     }
 
+
+
     public ArrayList<SurveyDataPoint> getSurveyEntries(UUID survey_id) {
         ArrayList<SurveyDataPoint> entries = this.entries.get(survey_id);
         if (entries == null) {
@@ -83,6 +85,7 @@ public class DataVault implements Serializable {
 
         return entries;
     }
+
 
     public void addSurvey(Survey survey) {
         this.surveys.put(survey.getId(), survey);
@@ -165,6 +168,7 @@ public class DataVault implements Serializable {
         kryo.register(BooleanAnswer.class);
         kryo.register(StringAnswer.class);
         kryo.register(FloatAnswer.class);
+        kryo.register(SurveyDataPoint.class);
 
         Input input;
         try {

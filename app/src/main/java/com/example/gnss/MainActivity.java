@@ -100,7 +100,9 @@ public class MainActivity extends AppCompatActivity {
                     }
 
                     if (item.getItemId() == R.id.action_view_survey_entries) {
-                        // TODO
+                        Intent intent = new Intent(this, EditEntries.class);
+                        intent.putExtra("survey_id", survey.getId());
+                        startActivity(intent);
                     }
 
                     return true;
@@ -110,15 +112,6 @@ public class MainActivity extends AppCompatActivity {
             surveyList.addView(surveyPreview);
 
         }
-    }
-
-    public void goToDisplayMaps(View view){
-        Intent intent = new Intent(this, DisplayMaps.class);
-        startActivity(intent);
-    }
-    public void goToCreateSurvey(View view) {
-        Intent intent = new Intent(this, CreateSurvey.class);
-        startActivity(intent);
     }
 
     @Override
@@ -138,6 +131,21 @@ public class MainActivity extends AppCompatActivity {
         intent.setType("application/octet-stream"); // Specify the file type you want
         intent.addCategory(Intent.CATEGORY_OPENABLE);
         startActivityForResult(Intent.createChooser(intent, "Select a File"), PICK_FILE_REQUEST);
+    }
+
+    public void goToEditEntries(View view){
+        Intent intent = new Intent(this, EditEntries.class);
+        startActivity(intent);
+    }
+
+    public void goToDisplayMaps(View view){
+        Intent intent = new Intent(this, DisplayMaps.class);
+        startActivity(intent);
+    }
+
+    public void goToCreateSurvey(View view) {
+        Intent intent = new Intent(this, CreateSurvey.class);
+        startActivity(intent);
     }
 
     @Override
