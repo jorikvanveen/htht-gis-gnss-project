@@ -36,6 +36,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 
 import com.example.gnss.dto.Survey;
+import com.example.gnss.dto.SurveyQuestion;
 import com.example.gnss.singleton.DataVault;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
@@ -64,6 +65,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.Set;
 import java.util.UUID;
 
@@ -100,6 +102,12 @@ public class DisplayMaps extends AppCompatActivity {
 
     private boolean isPaused = false;
 
+    private Survey survey;
+
+    private DataVault vault;
+
+
+
 
     // Launcher for location settings activity
     private final ActivityResultLauncher<Intent> locationSettingsLauncher =
@@ -116,10 +124,17 @@ public class DisplayMaps extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState); // Call the superclass method to perform the default initialization
 
-        DataVault vault = DataVault.getInstance(this);
+        vault = DataVault.getInstance(this);
         Intent receivedIntent = getIntent();
         UUID surveyId = (UUID) receivedIntent.getExtras().get("survey_id");
-        Survey survey = vault.getSurvey(surveyId).get();
+        survey = vault.getSurvey(surveyId).get();
+
+        ArrayList<SurveyQuestion> questions = survey.getQuestions();
+
+        for(SurveyQuestion question : questions){
+            Toast.makeText(this, question.getPrompt(), Toast.LENGTH_SHORT).show();
+        }
+
 
 
         // Initialize OSMDroid configuration for map functionality
@@ -160,7 +175,13 @@ public class DisplayMaps extends AppCompatActivity {
 
         // Set up the save location button to launch an activity for adjusting the marker
         saveLocationButton.setOnClickListener(v -> {
-           saveLocationToCSV(longitude, latitude);
+           //saveLocationToCSV(longitude, latitude);
+           Intent intent = new Intent(DisplayMaps.this, SaveEntry.class);
+           intent.putExtra("latitude", latitude);
+           intent.putExtra("longitude", longitude);
+           intent.putExtra("survey_id", survey.getId());
+           startActivity(intent);
+
         });
     }
 
@@ -171,6 +192,7 @@ public class DisplayMaps extends AppCompatActivity {
      *
      * @return true if internet is available, false otherwise.
      */
+
     private boolean isInternetAvailable() {
         // Get the ConnectivityManager instance to check network state
         ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -544,6 +566,8 @@ public class DisplayMaps extends AppCompatActivity {
                                 }
                                 @Override
                                 public void onMarkerDragEnd(Marker marker) {
+                                    GeoPoint markerPos = marker.getPosition();
+                                    setLatLong(markerPos.getLatitude(), markerPos.getLongitude());
                                     locationCheckHandler.postDelayed(() -> {
 
                                         isPaused = false;
@@ -610,6 +634,9 @@ public class DisplayMaps extends AppCompatActivity {
                                     }
                                     @Override
                                     public void onMarkerDragEnd(Marker marker) {
+                                        GeoPoint markerPos = marker.getPosition();
+                                        setLatLong(markerPos.getLatitude(), markerPos.getLongitude());
+
                                         locationCheckHandler.postDelayed(() -> {
 
                                             isPaused = false;
@@ -628,6 +655,10 @@ public class DisplayMaps extends AppCompatActivity {
                 }
             }
         }
+    }
+    private void setLatLong(double lat, double lon){
+        latitude = lat;
+        longitude = lon;
     }
 //                if (mapsforgeMapView != null) { //Two checks for initialization
 //                    LatLong newLocation = new LatLong(latitude, longitude);
@@ -723,6 +754,7 @@ public class DisplayMaps extends AppCompatActivity {
             Toast.makeText(this, "Error creating CSV file", Toast.LENGTH_SHORT).show();
         }
     }
+
 }
 //private void loadOfflineMap() {
 

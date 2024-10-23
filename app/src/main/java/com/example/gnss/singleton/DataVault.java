@@ -50,9 +50,7 @@ public class DataVault implements Serializable {
 
     private @NonNull HashMap<UUID, Survey> surveys;
     private @NonNull HashMap<UUID, ArrayList<SurveyDataPoint>> entries;
-    private DataVault(@NonNull HashMap<UUID, Survey> surveys) {
-        this.surveys = surveys;
-    }
+
 
     private DataVault() {
         this.surveys = new HashMap<UUID, Survey>();
@@ -72,6 +70,8 @@ public class DataVault implements Serializable {
         return this.surveys.values();
     }
 
+
+
     public ArrayList<SurveyDataPoint> getSurveyEntries(UUID survey_id) {
         ArrayList<SurveyDataPoint> entries = this.entries.get(survey_id);
         if (entries == null) {
@@ -81,6 +81,7 @@ public class DataVault implements Serializable {
 
         return entries;
     }
+
 
     public void addSurvey(Survey survey) {
         this.surveys.put(survey.getId(), survey);
@@ -163,13 +164,14 @@ public class DataVault implements Serializable {
         kryo.register(BooleanAnswer.class);
         kryo.register(StringAnswer.class);
         kryo.register(FloatAnswer.class);
+        kryo.register(SurveyDataPoint.class);
 
         Input input;
         try {
             input = new Input(context.openFileInput("data.bin"));
         } catch (FileNotFoundException e) {
             Log.d("GNSS", "No existing vault found, creating new");
-            return new DataVault(new HashMap<>());
+            return new DataVault();
         }
 
         DataVault vault = kryo.readObject(new Input(input), DataVault.class);
