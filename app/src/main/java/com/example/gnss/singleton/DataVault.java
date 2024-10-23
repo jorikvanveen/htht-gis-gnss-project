@@ -2,9 +2,13 @@ package com.example.gnss.singleton;
 
 
 import android.annotation.SuppressLint;
+import android.content.ContentResolver;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.res.Resources;
+import android.net.Uri;
 import android.provider.ContactsContract;
+import android.provider.MediaStore;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -31,6 +35,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -50,12 +55,9 @@ public class DataVault implements Serializable {
 
     private @NonNull HashMap<UUID, Survey> surveys;
     private @NonNull HashMap<UUID, ArrayList<SurveyDataPoint>> entries;
-    private DataVault(@NonNull HashMap<UUID, Survey> surveys) {
-        this.surveys = surveys;
-    }
 
     private DataVault() {
-        this.surveys = new HashMap<UUID, Survey>();
+        this.surveys = new HashMap<>();
         this.entries = new HashMap<>();
     }
 
@@ -169,7 +171,7 @@ public class DataVault implements Serializable {
             input = new Input(context.openFileInput("data.bin"));
         } catch (FileNotFoundException e) {
             Log.d("GNSS", "No existing vault found, creating new");
-            return new DataVault(new HashMap<>());
+            return new DataVault();
         }
 
         DataVault vault = kryo.readObject(new Input(input), DataVault.class);
@@ -179,13 +181,29 @@ public class DataVault implements Serializable {
         return vault;
     }
 
-    public void readFile(byte[] inputFile) {
-        ByteArrayInputStream inputStream = new ByteArrayInputStream(inputFile);
-        Input input = new Input(inputStream);
-
-        Survey inputSurvey = kryo.readObject(input, Survey.class);
-        input.close();
+    public void importSurvey(Input in) {
+        Survey inputSurvey = kryo.readObject(in, Survey.class);
+        in.close();
 
         surveys.put(inputSurvey.getId(), inputSurvey);
+    }
+
+    public void exportSurvey(Context context, UUID id) throws IOException {
+        Survey survey = this.getSurvey(id).get();
+        ContentValues values = new ContentValues();
+        values.put(MediaStore.MediaColumns.DISPLAY_NAME, sanitizeFilename(survey.getName()) + ".survey");
+        values.put(MediaStore.MediaColumns.MIME_TYPE, "application/octet-stream");
+        values.put(MediaStore.MediaColumns.RELATIVE_PATH, "Download/");
+
+        ContentResolver resolver = context.getContentResolver();
+        Uri uri = resolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, values);
+        Output out = new Output(resolver.openOutputStream(uri));
+        kryo.writeObject(out, survey);
+        out.flush();
+        out.close();
+    }
+
+    public String sanitizeFilename(String in) {
+        return in.replaceAll("[^a-zA-Z0-9.]", "_");
     }
 }
