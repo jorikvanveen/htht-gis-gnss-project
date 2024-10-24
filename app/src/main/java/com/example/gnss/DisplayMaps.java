@@ -710,43 +710,7 @@ public class DisplayMaps extends AppCompatActivity {
      * @param longitude The longitude of the adjusted location.
      * @param latitude  The latitude of the adjusted location.
      */
-    private void saveLocationToCSV(double longitude, double latitude) {
-        // Prepare the CSV data as a string
-        String csvData = "Latitude,Longitude\n" + latitude + "," + longitude;
 
-        // Define the content values for the CSV file
-        ContentValues values = new ContentValues();
-        values.put(MediaStore.MediaColumns.DISPLAY_NAME, "coordinates.csv");  // File name
-        values.put(MediaStore.MediaColumns.MIME_TYPE, "text/csv");  // File type (CSV)
-        values.put(MediaStore.MediaColumns.RELATIVE_PATH, "Download/");  // Save the file in the Downloads directory
-
-        // Get the ContentResolver to handle the file insertion
-        ContentResolver resolver = getContentResolver();
-        Uri uri = null;
-
-        // For Android 10 (API level 29) and above, use MediaStore to create the file
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            uri = resolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, values);
-        }
-
-        // If the URI was successfully created, write the CSV data to the file
-        if (uri != null) {
-            try (OutputStream outputStream = resolver.openOutputStream(uri)) {
-                if (outputStream != null) {
-                    outputStream.write(csvData.getBytes());  // Write the CSV data to the file
-                    Toast.makeText(this, "CSV saved to Downloads folder", Toast.LENGTH_SHORT).show();
-                } else {
-                    Toast.makeText(this, "Failed to create output", Toast.LENGTH_SHORT).show();
-                }
-            } catch (Exception e) {
-                // Handle any errors that occur during the file writing process
-                e.printStackTrace();
-                Toast.makeText(this, "Error saving CSV: " + e.getMessage(), Toast.LENGTH_LONG).show();
-            }
-        } else {
-            Toast.makeText(this, "Error creating CSV file", Toast.LENGTH_SHORT).show();
-        }
-    }
 
 }
 //private void loadOfflineMap() {
