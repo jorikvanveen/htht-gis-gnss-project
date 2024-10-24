@@ -2,6 +2,7 @@ package com.example.gnss;
 
 import android.content.ContentResolver;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
@@ -47,11 +48,13 @@ public class EditEntries extends AppCompatActivity {
 
     private UUID surveyId;
 
+    private ArrayList<String> answerStrings;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_edit_entries);
+
 
 
 
@@ -165,23 +168,62 @@ public class EditEntries extends AppCompatActivity {
 
     private void saveLocationToCSVMultiple() {
         // Prepare the CSV data as a string
-
-        StringBuilder csvData = new StringBuilder("Name,Latitude,Longitude\n");
-
+        StringBuilder csvData = new StringBuilder("Name,Latitude,Longitude");
         ArrayList<SurveyDataPoint> entries = vault.getSurveyEntries(surveyId);
+        ArrayList<SurveyQuestion> questions = vault.getSurvey(surveyId).get().getQuestions();
+        for (int i = 0; i < questions.size(); i++) {
+            csvData.append(","+ questions.get(i).getPrompt());
 
+        }
+        csvData.append("\n");
         for(SurveyDataPoint entry : entries) {
             double latitude = entry.getLat();
             double longitude = entry.getLon();
             String name = entry.getName();
+            ArrayList<Answer> answers = entry.getAnswers();
+            answerStrings = new ArrayList<>();
+
+            for (int i = 0; i < questions.size(); i++) {
+                var question = questions.get(i);
+                var questionType = question.getType();
+                Answer genAnswer = answers.get(i);
+                switch (questionType) {
+                    case String -> {
+                        StringAnswer answer = (StringAnswer) genAnswer;
+                        answerStrings.add(answer.value);
+                    }
+                    case Float -> {
+                        FloatAnswer answer = (FloatAnswer) genAnswer;
+                        answerStrings.add(Float.toString(answer.value));
+                    }
+                    case Integer -> {
+                        IntAnswer answer = (IntAnswer) genAnswer;
+                        answerStrings.add(Integer.toString(answer.value));
+                    }
+                    case Boolean -> {
+                        BooleanAnswer answer = (BooleanAnswer) genAnswer;
+                        answerStrings.add(Boolean.toString(answer.value));
+                    }
+                }
+            }
 
             csvData.append(name)
                     .append(",")
                     .append(latitude)
                     .append(",")
-                    .append(longitude)
-                    .append("\n");
+                    .append(longitude);
+
+            for (String string : answerStrings){
+
+                csvData.append(",")
+                        .append(string);
+            }
+            csvData.append("\n");
         }
+        //have to clear
+
+
+
         // Define the content values for the CSV file
         String filename = survey.getName() + "_coordinates.csv";
         ContentValues values = new ContentValues();
@@ -216,6 +258,9 @@ public class EditEntries extends AppCompatActivity {
             Toast.makeText(this, "Error creating CSV file", Toast.LENGTH_SHORT).show();
         }
     }
+
+
+
 
     @Override
     protected void onRestart() {
