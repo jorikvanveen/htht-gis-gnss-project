@@ -21,6 +21,7 @@ import android.os.Handler;
 import android.provider.MediaStore;
 import android.provider.Settings;
 import android.util.Log;
+import android.view.View;
 import android.view.ViewTreeObserver;
 import android.widget.Button;
 import android.widget.FrameLayout;
@@ -39,6 +40,8 @@ import com.example.gnss.singleton.DataVault;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.button.MaterialButton;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import org.mapsforge.map.android.view.MapView;
 
@@ -701,6 +704,21 @@ public class DisplayMaps extends AppCompatActivity {
 
         }
         return false;
+    }
+
+    public void updateLocation(View view) {
+        getCurrentLocation();
+    }
+
+    public void toggleAutoRenew(View view) {
+        isPaused = !isPaused;
+        FloatingActionButton button = findViewById(R.id.autoRenewButton);
+
+        if (isPaused) {
+            button.setImageDrawable(getDrawable(R.drawable.lock_reset));
+        } else {
+            button.setImageDrawable(getDrawable(R.drawable.autorenew));
+        }
     }
 
     /**
