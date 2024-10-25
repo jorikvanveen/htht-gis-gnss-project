@@ -127,7 +127,8 @@ public class EditEntries extends AppCompatActivity {
         SurveyDataPoint entry = vault.getSurveyEntries(surveyId).get(entryIndex);
         double latitude = entry.getLat();
         double longitude = entry.getLon();
-        String name = entry.getName();String date = entry.getDate();
+        String name = entry.getName();
+        String date = entry.getDate();
         String time = entry.getTime();
 
 
@@ -170,7 +171,7 @@ public class EditEntries extends AppCompatActivity {
 
     private void saveLocationToCSVMultiple() {
         // Prepare the CSV data as a string
-        StringBuilder csvData = new StringBuilder("Name,Latitude,Longitude");
+        StringBuilder csvData = new StringBuilder("Name,Latitude,Longitude,Date,Time");
         ArrayList<SurveyDataPoint> entries = vault.getSurveyEntries(surveyId);
         ArrayList<SurveyQuestion> questions = vault.getSurvey(surveyId).get().getQuestions();
         for (int i = 0; i < questions.size(); i++) {
@@ -183,6 +184,8 @@ public class EditEntries extends AppCompatActivity {
             double latitude = entry.getLat();
             double longitude = entry.getLon();
             String name = entry.getName();
+            String date = entry.getDate();
+            String time = entry.getTime();
             ArrayList<Answer> answers = entry.getAnswers();
             answerStrings = new ArrayList<>();
 
@@ -209,10 +212,18 @@ public class EditEntries extends AppCompatActivity {
                     }
                 }
             }
+            csvData.append(name)
+                    .append(",")
+                    .append(latitude)
+                    .append(",")
+                    .append(longitude)
+                    .append(",")
+                    .append(date)
+                    .append(",")
+                    .append(time);
 
-            String date = entry.getDate();
-            String time = entry.getTime();
-   
+
+
             for (String string : answerStrings){
 
                 csvData.append(",")
@@ -258,7 +269,45 @@ public class EditEntries extends AppCompatActivity {
             Toast.makeText(this, "Error creating CSV file", Toast.LENGTH_SHORT).show();
         }
     }
-
+//  private void saveLocationToCSVMultiple() {
+//        // Prepare the CSV data as a string
+//
+//        StringBuilder csvData = new StringBuilder("Name,Latitude,Longitude,Date,Time\n");
+//
+//        ArrayList<SurveyDataPoint> entries = vault.getSurveyEntries(surveyId);
+//
+//        for(SurveyDataPoint entry : entries) {
+//
+//            double latitude = entry.getLat();
+//            double longitude = entry.getLon();
+//            String name = entry.getName();
+//
+//            String date = entry.getDate();
+//            String time = entry.getTime();
+//            csvData.append(name)
+//                    .append(",")
+//                    .append(latitude)
+//                    .append(",")
+//                    .append(longitude)
+//                    .append(",")
+//                    .append(date)
+//                    .append(",")
+//                    .append(time)
+//                    .append("\n");
+//
+//            for (String string : answerStrings){
+//
+//                csvData.append(",")
+//                        .append(string);
+//            }
+//            csvData.append("\n");
+//        }
+//        // Define the content values for the CSV file
+//        String filename = survey.getName() + "_coordinates.csv";
+//        ContentValues values = new ContentValues();
+//        values.put(MediaStore.MediaColumns.DISPLAY_NAME, filename);  // File name
+//        values.put(MediaStore.MediaColumns.MIME_TYPE, "text/csv");  // File type (CSV)
+//        values.put(MediaStore.MediaColumns.RELATIVE_PATH, "Download/");  // Save the file in the Downloads directory
 
 
 
