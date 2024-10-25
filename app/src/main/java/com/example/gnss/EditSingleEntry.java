@@ -103,9 +103,14 @@ public class EditSingleEntry extends AppCompatActivity {
         EditText displayLat = new EditText(this);
         EditText displayLon = new EditText(this);
         EditText displayName = new EditText(this);
+
         //Create the editable text for date and time
         EditText displayDate = new EditText(this);
         EditText displayTime = new EditText(this);
+
+
+        displayLat.setInputType(android.text.InputType.TYPE_CLASS_NUMBER | android.text.InputType.TYPE_NUMBER_FLAG_DECIMAL);
+        displayLon.setInputType(android.text.InputType.TYPE_CLASS_NUMBER | android.text.InputType.TYPE_NUMBER_FLAG_DECIMAL);
 
 
 
@@ -189,15 +194,19 @@ public class EditSingleEntry extends AppCompatActivity {
 
 
         for (int i = 0; i < answers.size(); i++) {
-            EditText questionPrompt = new EditText(this);
-            questionPrompt.setHint(questions.get(i).getPrompt());
-            TextView questionTextView  = new TextView(this);
-            questionTextView.setText(questions.get(i).getPrompt());
-            questionPrompt.setText(answerStrings.get(i));
+//            TextView questionTextView  = new TextView(this);
+//            EditText questionPrompt = new EditText(this);
+//            questionPrompt.setHint(questions.get(i).getPrompt());
 
-            answerContainer.addView(questionTextView);
-            answerContainer.addView(questionPrompt);
-            inputFields.add(questionPrompt);
+            addQuestionToLayout(questions.get(i), answerStrings.get(i));
+
+
+//            questionTextView.setText(questions.get(i).getPrompt());
+//            questionPrompt.setText(answerStrings.get(i));
+//
+//            answerContainer.addView(questionTextView);
+//            answerContainer.addView(questionPrompt);
+//            inputFields.add(questionPrompt);
 
         }
 
@@ -206,6 +215,56 @@ public class EditSingleEntry extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
+    }
+    private void addQuestionToLayout(SurveyQuestion question, String answer) {
+        // Create a TextView for the question prompt
+        TextView questionPrompt = new TextView(this);
+        questionPrompt.setText(question.getPrompt());
+
+
+        // Add the question prompt to the container
+        answerContainer.addView(questionPrompt);
+
+        // Create input field based on the question type
+        switch (question.getType()) {
+            case String:
+                EditText stringInput = new EditText(this);
+                stringInput.setText(answer);
+                answerContainer.addView(stringInput);
+                inputFields.add(stringInput);
+                break;
+            case Integer:
+                EditText integerInput = new EditText(this);
+
+                integerInput.setInputType(android.text.InputType.TYPE_CLASS_NUMBER);
+                integerInput.setText(Integer.parseInt(answer));
+                answerContainer.addView(integerInput);
+                inputFields.add(integerInput);
+                break;
+            case Float:
+                EditText floatInput = new EditText(this);
+                floatInput.setHint("Enter decimal number");
+                floatInput.setInputType(android.text.InputType.TYPE_CLASS_NUMBER | android.text.InputType.TYPE_NUMBER_FLAG_DECIMAL);
+                floatInput.setText(answer);
+                answerContainer.addView(floatInput);
+                inputFields.add(floatInput);
+                break;
+            case Boolean:
+                Spinner booleanSpinner = new Spinner(this);
+                ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
+                        R.array.boolean_options, android.R.layout.simple_spinner_item);
+                adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                booleanSpinner.setAdapter(adapter);
+
+                if(answer.equalsIgnoreCase("True")){
+                    booleanSpinner.setSelection(0);
+                }else{
+                    booleanSpinner.setSelection(1);
+                }
+                answerContainer.addView(booleanSpinner);
+                inputFields.add(booleanSpinner);
+                break;
+        }
     }
     private void collectAnswers() throws IOException {
 
@@ -218,7 +277,7 @@ public class EditSingleEntry extends AppCompatActivity {
             View inputField = inputFields.get(i);
 
 
-            if (i==0) {
+            if (i==1) {
                 try {
                     latitude = Double.parseDouble(((EditText) inputField).getText().toString());
                 } catch (NumberFormatException e) {
@@ -226,7 +285,7 @@ public class EditSingleEntry extends AppCompatActivity {
                     break;
 
                 }
-            }else if (i == 1) {
+            }else if (i == 0) {
                 try {
                     longitude = Double.parseDouble(((EditText) inputField).getText().toString());
                 } catch (NumberFormatException e) {
