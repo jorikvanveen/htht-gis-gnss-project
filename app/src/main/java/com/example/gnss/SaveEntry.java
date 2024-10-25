@@ -34,6 +34,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 public class SaveEntry extends AppCompatActivity {
 
     private Survey survey;
@@ -53,6 +56,9 @@ public class SaveEntry extends AppCompatActivity {
     private UUID surveyId;
 
     private String name;
+
+    private String formattedDate;
+    private String formattedTime;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,6 +80,13 @@ public class SaveEntry extends AppCompatActivity {
         latitude = getIntent().getDoubleExtra("latitude", 0.0);
         longitude = getIntent().getDoubleExtra("longitude", 0.0);
 
+        //Get the current time and date
+        Date currentTime = new Date();
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm:ss");
+        formattedDate = dateFormat.format(currentTime);
+        formattedTime = timeFormat.format(currentTime);
+
         vault = DataVault.getInstance(this);
         Intent receivedIntent = getIntent();
         surveyId = (UUID) receivedIntent.getExtras().get("survey_id");
@@ -82,6 +95,12 @@ public class SaveEntry extends AppCompatActivity {
         questions = survey.getQuestions();
 
         addLatLon();
+
+        TextView dateText = new TextView(this);
+        String dateTextString = "Date " + formattedDate + " Time " + formattedTime;
+        dateText.setText(dateTextString);
+        questionContainer.addView(dateText);
+
 
         TextView nameText = new TextView(this);
         nameText.setText("Name");
@@ -92,6 +111,8 @@ public class SaveEntry extends AppCompatActivity {
         inputFields.add(editTextName);
         questionContainer.addView(nameText);
         questionContainer.addView(editTextName);
+
+
 
 
         for(SurveyQuestion question : questions){
@@ -171,9 +192,7 @@ public class SaveEntry extends AppCompatActivity {
 
     private void collectAnswers() throws IOException {
 
-
         answers = new ArrayList<>();
-
 
 
         // Iterate through all input fields and collect answers
@@ -181,12 +200,10 @@ public class SaveEntry extends AppCompatActivity {
 
             View inputField = inputFields.get(i);
 
-
             if (i == 0 ){
                 name = ((EditText)inputField).getText().toString();
 
             }
-
 
             // Determine the type of input and collect the answer
             else if (inputField instanceof EditText) {
@@ -204,7 +221,7 @@ public class SaveEntry extends AppCompatActivity {
                 }
             }
             if(inputFields.size() == i+1){
-                SurveyDataPoint entry = new SurveyDataPoint(name, latitude, longitude, answers);
+                SurveyDataPoint entry = new SurveyDataPoint(name, latitude, longitude, formattedDate, formattedTime,  answers);
                 vault.saveEntry(surveyId, entry);
                 DataVault.save(this);
                 finish();
