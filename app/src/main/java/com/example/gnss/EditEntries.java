@@ -130,9 +130,48 @@ public class EditEntries extends AppCompatActivity {
         String name = entry.getName();
         String date = entry.getDate();
         String time = entry.getTime();
+        ArrayList<String> answerStrings = new ArrayList<>();
+
+        ArrayList<SurveyQuestion> questions = vault.getSurvey(surveyId).get().getQuestions();
+        ArrayList<Answer> answers = entry.getAnswers();
+
+        String csvData = "Name,Latitude,Longitude,Date,Time";
+        String csvAnswers = name+ "," + latitude + "," + longitude + "," + date + "," + time;
 
 
-        String csvData = "Name,Latitude,Longitude,Date,Time\n" + name+ "," + latitude + "," + longitude + "," + date + "," + time;
+        for (int i = 0; i < questions.size(); i++) {
+            var question = questions.get(i);
+            var questionType = question.getType();
+            Answer genAnswer = answers.get(i);
+            switch (questionType) {
+                case String -> {
+                    StringAnswer answer = (StringAnswer) genAnswer;
+                    answerStrings.add(answer.value);
+                }
+                case Float -> {
+                    FloatAnswer answer = (FloatAnswer) genAnswer;
+                    answerStrings.add(Float.toString(answer.value));
+                }
+                case Integer -> {
+                    IntAnswer answer = (IntAnswer) genAnswer;
+                    answerStrings.add(Integer.toString(answer.value));
+                }
+                case Boolean -> {
+                    BooleanAnswer answer = (BooleanAnswer) genAnswer;
+                    answerStrings.add(Boolean.toString(answer.value));
+                }
+            }
+        }
+        for (SurveyQuestion question : questions){
+            csvData = csvData + "," + question.getPrompt();
+        }
+        csvData = csvData + "\n";
+        for(String answer : answerStrings){
+            csvAnswers = csvAnswers + "," + answer;
+        }
+        csvAnswers = csvAnswers + "\n";
+
+        csvData = csvData + csvAnswers;
 
         // Define the content values for the CSV file
         String filename = name + "_coordinates.csv";
