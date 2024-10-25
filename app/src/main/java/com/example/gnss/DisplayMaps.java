@@ -26,8 +26,6 @@ import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.Toast;
 
-
-
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
@@ -552,6 +550,7 @@ public class DisplayMaps extends AppCompatActivity {
                             marker.setOnMarkerDragListener(new Marker.OnMarkerDragListener() {
                                 @Override
                                 public void onMarkerDragStart(Marker marker) {
+                                    Toast.makeText(DisplayMaps.this, "Marker is being dragged", Toast.LENGTH_SHORT).show();
                                     isPaused = true;
                                 }
                                 @Override
