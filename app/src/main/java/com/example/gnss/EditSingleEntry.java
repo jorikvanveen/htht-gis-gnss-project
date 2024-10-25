@@ -29,6 +29,8 @@ import com.example.gnss.dto.SurveyQuestion;
 import com.example.gnss.dto.SurveyQuestionType;
 import com.example.gnss.singleton.DataVault;
 
+import org.w3c.dom.Text;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -53,6 +55,9 @@ public class EditSingleEntry extends AppCompatActivity {
     private String name;
 
     private UUID surveyId;
+
+    private String formattedDate;
+    private String formattedTime;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,6 +85,10 @@ public class EditSingleEntry extends AppCompatActivity {
         longitude = entry.getLon();
         name = entry.getName();
 
+        //Get the date and the time for each entry
+        formattedDate = entry.getDate();
+        formattedTime = entry.getTime();
+
         Button submitButton = findViewById(R.id.submitButton);
         submitButton.setOnClickListener(v -> {
             try {
@@ -94,8 +103,15 @@ public class EditSingleEntry extends AppCompatActivity {
         EditText displayLat = new EditText(this);
         EditText displayLon = new EditText(this);
         EditText displayName = new EditText(this);
+
+        //Create the editable text for date and time
+        EditText displayDate = new EditText(this);
+        EditText displayTime = new EditText(this);
+
+
         displayLat.setInputType(android.text.InputType.TYPE_CLASS_NUMBER | android.text.InputType.TYPE_NUMBER_FLAG_DECIMAL);
         displayLon.setInputType(android.text.InputType.TYPE_CLASS_NUMBER | android.text.InputType.TYPE_NUMBER_FLAG_DECIMAL);
+
 
 
         TextView lat = new TextView(this);
@@ -104,6 +120,11 @@ public class EditSingleEntry extends AppCompatActivity {
         lon.setText("Longitude");
         TextView nameView = new TextView(this);
         nameView.setText("Name");
+        //Create the title fields for date and time
+        TextView date = new TextView(this);
+        date.setText("Date");
+        TextView time = new TextView(this);
+        time.setText("Time");
 
         String doubleLat = Double.toString(latitude);
         String doubleLon = Double.toString(longitude);
@@ -113,6 +134,10 @@ public class EditSingleEntry extends AppCompatActivity {
         displayLat.setText(doubleLat);
         displayLon.setText(doubleLon);
         displayName.setText(name);
+        //Display the date and time
+        displayDate.setText(formattedDate);
+        displayTime.setText(formattedTime);
+
         answerContainer.addView(lat);
         answerContainer.addView(displayLat);
         answerContainer.addView(lon);
@@ -120,9 +145,20 @@ public class EditSingleEntry extends AppCompatActivity {
         answerContainer.addView(nameView);
         answerContainer.addView(displayName);
 
+        //Add them to the answer container
+        answerContainer.addView(date);
+        answerContainer.addView(displayDate);
+        answerContainer.addView(time);
+        answerContainer.addView(displayTime);
+
+
         inputFields.add(displayLon);
         inputFields.add(displayLat);
         inputFields.add(displayName);
+
+        //Add date adn time to the input fields
+        inputFields.add(displayDate);
+        inputFields.add(displayTime);
 
         ArrayList<Answer> answers = entry.getAnswers();
         ArrayList<String> answerStrings = new ArrayList<>();
@@ -260,22 +296,28 @@ public class EditSingleEntry extends AppCompatActivity {
             else if (i ==2){
                 name = ((EditText) inputField).getText().toString();
             }
+            else if (i == 3){
+                formattedDate = ((EditText) inputField).getText().toString();
+            }
+            else if (i == 4){
+                formattedTime = ((EditText) inputField).getText().toString();
+            }
             // Determine the type of input and collect the answer
             else if (inputField instanceof EditText) {
-                SurveyQuestionType type = questions.get(i-3).getType();
+                SurveyQuestionType type = questions.get(i-5).getType();
                 String answer = ((EditText) inputField).getText().toString();
                 if (!validateAndRegisterAnswer(answer, type, this, i)) {
                     break;
                 }
             } else if (inputField instanceof Spinner) {
-                SurveyQuestionType type = questions.get(i-3).getType();
+                SurveyQuestionType type = questions.get(i-5).getType();
                 String answer = ((Spinner) inputField).getSelectedItem().toString();
                 if (!validateAndRegisterAnswer(answer, type, this, i)) {
                     break;
                 }
             }
             if (inputFields.size() == i + 1) {
-                SurveyDataPoint entry = new SurveyDataPoint(name, latitude, longitude, answers);
+                SurveyDataPoint entry = new SurveyDataPoint(name, latitude, longitude, formattedDate, formattedTime, answers);
                 vault.getSurveyEntries(surveyId).set(entryId, entry);
                 DataVault.save(this);
                 finish();
