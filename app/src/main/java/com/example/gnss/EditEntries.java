@@ -124,9 +124,11 @@ public class EditEntries extends AppCompatActivity {
         SurveyDataPoint entry = vault.getSurveyEntries(surveyId).get(entryIndex);
         double latitude = entry.getLat();
         double longitude = entry.getLon();
-        String name = entry.getName();
+        String name = entry.getName();String date = entry.getDate();
+        String time = entry.getTime();
 
-        String csvData = "Name,Latitude,Longitude\n" + name+ "," + latitude + "," + longitude;
+
+        String csvData = "Name,Latitude,Longitude,Date,Time\n" + name+ "," + latitude + "," + longitude + "," + date + "," + time;
 
         // Define the content values for the CSV file
         String filename = name + "_coordinates.csv";
@@ -171,15 +173,22 @@ public class EditEntries extends AppCompatActivity {
         ArrayList<SurveyDataPoint> entries = vault.getSurveyEntries(surveyId);
 
         for(SurveyDataPoint entry : entries) {
+
             double latitude = entry.getLat();
             double longitude = entry.getLon();
             String name = entry.getName();
 
+            String date = entry.getDate();
+            String time = entry.getTime();
             csvData.append(name)
                     .append(",")
                     .append(latitude)
                     .append(",")
                     .append(longitude)
+                    .append(",")
+                    .append(date)
+                    .append(",")
+                    .append(time)
                     .append("\n");
         }
         // Define the content values for the CSV file
