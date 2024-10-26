@@ -370,7 +370,7 @@ public class DisplayMaps extends AppCompatActivity {
 
             // Load the OSMDroid configuration from preferences
             Configuration.getInstance().load(this, getPreferences(MODE_PRIVATE));
-            Toast.makeText(getApplicationContext(), "Initializing OSMDroid map", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getApplicationContext(), "Initializing map", Toast.LENGTH_SHORT).show();
 
             // Initialize osmMapView (OSMDroid MapView)
             osmMapView = new org.osmdroid.views.MapView(this);
@@ -719,6 +719,7 @@ public class DisplayMaps extends AppCompatActivity {
     }
 
     public void updateLocation(View view) {
+        Toast.makeText(DisplayMaps.this, "Getting your location...", Toast.LENGTH_SHORT).show();
         getCurrentLocation();
     }
 
@@ -728,8 +729,12 @@ public class DisplayMaps extends AppCompatActivity {
 
         if (isPaused) {
             button.setImageDrawable(getDrawable(R.drawable.lock_reset));
+            Toast.makeText(DisplayMaps.this, "Live tracking OFF", Toast.LENGTH_SHORT).show();
+
         } else {
             button.setImageDrawable(getDrawable(R.drawable.autorenew));
+            Toast.makeText(DisplayMaps.this, "Live tracking ON", Toast.LENGTH_SHORT).show();
+
         }
     }
 
