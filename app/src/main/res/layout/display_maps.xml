@@ -55,9 +55,12 @@
             android:layout_width="wrap_content"
 
             android:layout_height="wrap_content"
+            android:height="59dp"
             android:backgroundTint="#0dcdd4"
             android:elevation="2dp"
+            android:fontFamily="@font/adlam_display"
             android:text="Save Location"
+            android:textSize="20sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -72,6 +75,7 @@
             android:onClick="toggleAutoRenew"
             app:backgroundTint="#0dcdd4"
             app:layout_constraintEnd_toEndOf="parent"
+            app:rippleColor="#000000"
             app:srcCompat="@drawable/autorenew" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>

@@ -45,8 +45,8 @@
     <Button
         android:id="@+id/saveButton"
         android:layout_width="266dp"
-        android:layout_height="44dp"
-        android:layout_marginBottom="32dp"
+        android:layout_height="59dp"
+        android:layout_marginBottom="24dp"
         android:backgroundTint="#0dcdd4"
         android:fontFamily="@font/adlam_display"
         android:text="Save All to CSV"
