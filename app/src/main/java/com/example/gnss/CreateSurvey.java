@@ -135,9 +135,9 @@ public class CreateSurvey extends AppCompatActivity {
 
         vault.addSurvey(survey);
         DataVault.save(this);
-
-        Intent intent = new Intent(this, MainActivity.class);
-        this.startActivity(intent);
+        finish();
+//        Intent intent = new Intent(this, MainActivity.class);
+//        this.startActivity(intent);
     }
 
     public Survey readFormData() {

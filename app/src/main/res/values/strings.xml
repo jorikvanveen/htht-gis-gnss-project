@@ -50,7 +50,9 @@
     <string name="survey_name_hint">Survey name</string>
 
     <string-array name="boolean_options">
+        <item>Undefined</item>
         <item>True</item>
         <item>False</item>
+
     </string-array>
 </resources>

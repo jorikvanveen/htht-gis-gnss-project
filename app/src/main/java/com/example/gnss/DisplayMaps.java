@@ -18,6 +18,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.provider.MediaStore;
 import android.provider.Settings;
 import android.util.Log;
@@ -218,14 +219,24 @@ public class DisplayMaps extends AppCompatActivity {
             public void onAvailable(@NonNull Network network) {
                 super.onAvailable(network); // Call the superclass method
                 // Switch to online map when internet becomes available
-                runOnUiThread(() -> switchToOnlineMap());
+
+                if(!isInitialised) {
+                    runOnUiThread(() -> switchToOnlineMap());
+                }
             }
 
             @Override
             public void onLost(@NonNull Network network) {
+
                 super.onLost(network); // Call the superclass method
+                Handler handler = new Handler(Looper.getMainLooper());
+
                 // Switch to offline map when internet is lost
-                runOnUiThread(() -> switchToOfflineMap());
+                if(!isInitialisedOffline) {
+                    runOnUiThread(() -> switchToOfflineMap());
+                }
+
+
             }
         });
     }
@@ -561,6 +572,7 @@ public class DisplayMaps extends AppCompatActivity {
                                 }
                                 @Override
                                 public void onMarkerDragEnd(Marker marker) {
+                                    Toast.makeText(DisplayMaps.this, "You have 10s to save", Toast.LENGTH_SHORT).show();
                                     GeoPoint markerPos = marker.getPosition();
                                     setLatLong(markerPos.getLatitude(), markerPos.getLongitude());
                                     locationCheckHandler.postDelayed(() -> {
