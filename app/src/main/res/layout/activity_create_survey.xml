@@ -21,10 +21,12 @@
             android:id="@+id/textView2"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
+            android:layout_marginTop="16dp"
+            android:fontFamily="@font/adlam_display"
             android:text="Create a new Survey!"
             android:textAlignment="center"
-            android:textSize="24sp" />
+            android:textColor="#FFFFFF"
+            android:textSize="34sp" />
     </LinearLayout>
 
     <LinearLayout
@@ -83,8 +85,10 @@
             android:layout_height="wrap_content"
             android:alpha="1"
             android:backgroundTint="#0dcdd4"
+            android:fontFamily="@font/adlam_display"
             android:onClick="onSave"
-            android:text="@string/survey_save_button_text" />
+            android:text="@string/survey_save_button_text"
+            android:textSize="20sp" />
 
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>
