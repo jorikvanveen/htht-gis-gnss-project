@@ -12,15 +12,17 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/toolbar">
+        app:layout_constraintTop_toBottomOf="@+id/toolbar"
+        app:layout_constraintVertical_bias="1.0"
+        tools:layout_editor_absoluteX="0dp">
 
     </FrameLayout>
 
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
-        android:layout_height="70dp"
-        android:background="?attr/colorPrimarySurface"
+        android:layout_height="74dp"
+        android:background="#0dcdd4"
         app:buttonGravity="center_vertical"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
@@ -43,6 +45,7 @@
             android:layout_marginStart="16dp"
             android:clickable="true"
             android:onClick="updateLocation"
+            app:backgroundTint="#0dcdd4"
             app:layout_constraintStart_toStartOf="parent"
             app:srcCompat="@drawable/my_location" />
 
@@ -52,6 +55,7 @@
             android:layout_width="wrap_content"
 
             android:layout_height="wrap_content"
+            android:backgroundTint="#0dcdd4"
             android:elevation="2dp"
             android:text="Save Location"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -66,6 +70,7 @@
             android:layout_marginEnd="16dp"
             android:clickable="true"
             android:onClick="toggleAutoRenew"
+            app:backgroundTint="#0dcdd4"
             app:layout_constraintEnd_toEndOf="parent"
             app:srcCompat="@drawable/autorenew" />
 
