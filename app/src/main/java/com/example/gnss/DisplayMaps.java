@@ -13,6 +13,7 @@ import android.location.LocationManager;
 import android.net.ConnectivityManager;
 import android.net.Network;
 import android.net.NetworkCapabilities;
+import android.net.NetworkInfo;
 import android.net.NetworkRequest;
 import android.net.Uri;
 import android.os.Build;
@@ -39,7 +40,12 @@ import com.example.gnss.dto.Survey;
 import com.example.gnss.dto.SurveyQuestion;
 import com.example.gnss.singleton.DataVault;
 import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.Granularity;
+import com.google.android.gms.location.LocationCallback;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.Priority;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -73,8 +79,10 @@ import java.util.UUID;
 
 public class DisplayMaps extends AppCompatActivity {
 
+
     // UI elements
-    private MapView mapsforgeMapView;
+    private boolean isLocationPromptOpen = false;
+
 
     private boolean isInitialised = false;
 
@@ -85,7 +93,10 @@ public class DisplayMaps extends AppCompatActivity {
 
     private TileRendererLayer tileRendererLayer;
 
+    private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
     private FusedLocationProviderClient fusedLocationClient;
+    private LocationRequest locationRequest;
+    private LocationCallback locationCallback;
     private Marker marker;
 
     private FrameLayout mapContainer;
@@ -93,13 +104,9 @@ public class DisplayMaps extends AppCompatActivity {
     private double latitude;
     private double longitude;
 
-    private org.mapsforge.map.layer.overlay.Marker currentMarker;
-
-    private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
-
-    private static final int LOCATION_ADJUST_REQUEST_CODE = 100;
-
     private final Handler locationCheckHandler = new Handler();
+
+    private boolean isPausedButton = false;
     private Runnable locationCheckRunnable;
 
     private boolean isPaused = false;
@@ -107,6 +114,8 @@ public class DisplayMaps extends AppCompatActivity {
     private Survey survey;
 
     private DataVault vault;
+
+    private File MapFile;
 
 
 
@@ -117,6 +126,7 @@ public class DisplayMaps extends AppCompatActivity {
                     result -> {
                         if (isLocationEnabled()) {
                             getCurrentLocation();
+                            isLocationPromptOpen = false;
                         } else {
                             Toast.makeText(this, "Location services are still disabled.", Toast.LENGTH_SHORT).show();
                         }
@@ -151,12 +161,34 @@ public class DisplayMaps extends AppCompatActivity {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
             mapContainer.setAccessibilityHeading(true);
         }
-
-        // Initialize FusedLocationProviderClient to handle location services
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+        locationCallback = new LocationCallback() {
+            @Override
+            public void onLocationResult(LocationResult locationResult) {
+                if (locationResult == null) {
+                    return;
+                }
+                if (!isPaused && !isPausedButton) { // Only process if the boolean is true
+                    Location location = locationResult.getLastLocation();
+                    if (location != null) {
+                        Log.d("Location Update", "Latitude: " + location.getLatitude() + ", Longitude: " + location.getLongitude());
+                        latitude = location.getLatitude();
+                        longitude = location.getLongitude();
+                        updateMapLocation(latitude, longitude);
+                        // Add additional logic for the location here if needed
+                    }
+                } else {
+                    Log.d("Location Update", "Location updates are paused by boolean flag.");
+                }
+            }
+        };
+
+
+        startLocationUpdates(locationCallback);
+        startLocationCheckRunnable();
 
         // Start checking if location services are enabled
-        startLocationCheckRunnable();
+        //startLocationCheckRunnable();
 
         // Register a network callback to listen for changes in connectivity
         registerNetworkCallback();
@@ -179,8 +211,61 @@ public class DisplayMaps extends AppCompatActivity {
 
         });
     }
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == LOCATION_PERMISSION_REQUEST_CODE) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                startLocationUpdates(locationCallback);
+            } else {
+                Log.e("Location Permission", "Permission denied");
+            }
+        }
+    }
+    private void startLocationUpdates(LocationCallback callback) {
 
 
+        // Start requesting location updates
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, LOCATION_PERMISSION_REQUEST_CODE);
+            return;
+        }
+
+
+        LocationRequest locationRequest = new LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 4000).build();
+
+
+        fusedLocationClient.requestLocationUpdates(locationRequest, callback, null);
+
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        startLocationUpdates(locationCallback);
+    }
+
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        startLocationUpdates(locationCallback);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        pauseLocationUpdates();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        pauseLocationUpdates();
+    }
+
+    private void pauseLocationUpdates() {
+        fusedLocationClient.removeLocationUpdates(locationCallback);
+    }
     /**
      * Starts a periodic check if the location services are enabled. If not, prompts the user to enable them.
      * Checks if there is an active internet connection.
@@ -198,6 +283,7 @@ public class DisplayMaps extends AppCompatActivity {
         // Return true if capabilities are not null and the network has internet capability
         return capabilities != null && capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET);
     }
+
 
     /**
      * Registers a network callback to monitor network connectivity changes.
@@ -225,18 +311,25 @@ public class DisplayMaps extends AppCompatActivity {
                 }
             }
 
-            @Override
             public void onLost(@NonNull Network network) {
-
                 super.onLost(network); // Call the superclass method
                 Handler handler = new Handler(Looper.getMainLooper());
 
-                // Switch to offline map when internet is lost
-                if(!isInitialisedOffline) {
-                    runOnUiThread(() -> switchToOfflineMap());
-                }
+                // Delay for 3 seconds before switching to offline map
+                handler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        // Check network availability after the delay
+//                        ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+//                        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+//                        boolean isConnected = activeNetwork != null && activeNetwork.isConnectedOrConnecting();
 
-
+                        // Switch to offline map if still not connected
+                        if (!isInternetAvailable() && !isInitialisedOffline) {
+                            runOnUiThread(DisplayMaps.this::switchToOfflineMap);
+                        }
+                    }
+                }, 4000); // 4 seconds delay
             }
         });
     }
@@ -278,8 +371,9 @@ public class DisplayMaps extends AppCompatActivity {
 
         try {
             // Copy the world.mbtiles file from the raw resource folder to the internal storage
-            File MapFile = copyFileToInternalStorage(R.raw.world, "world.mbtiles");
-
+            if(MapFile == null) {
+                MapFile = copyFileToInternalStorage(R.raw.world, "world.mbtiles");
+            }
             // Check if the map file exists in internal storage
             if (MapFile.exists()) {
                 try {
@@ -432,24 +526,24 @@ public class DisplayMaps extends AppCompatActivity {
      * If the services are enabled, it retrieves the current location. The check is repeated every 3 seconds.
      */
     private void startLocationCheckRunnable() {
+
         // Create a new Runnable to check location services status
         locationCheckRunnable = new Runnable() {
             @Override
             public void run() {
-                if (!isPaused) {
+                if (!isPaused && !isLocationPromptOpen) {
                     // Check if the location services are enabled on the device
                     if (!isLocationEnabled()) {
                         // If location services are disabled, show a toast message to the user
                         Toast.makeText(DisplayMaps.this, "Location services are disabled. Please enable them.", Toast.LENGTH_SHORT).show();
 
                         // Create an intent to open the location settings on the device
-                        Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
 
-                        // Launch the location settings intent to prompt the user
-                        locationSettingsLauncher.launch(intent);
-                    } else {
-                        // If location services are enabled, call the method to get the current location
-                        getCurrentLocation();
+                            Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                            locationSettingsLauncher.launch(intent);
+                            isLocationPromptOpen = true;
+
+
                     }
                 }
                 // Schedule the runnable to run again after 3 seconds
@@ -492,6 +586,7 @@ public class DisplayMaps extends AppCompatActivity {
      * If permission is not granted, it requests the necessary permissions.
      */
     private void getCurrentLocation() {
+
         // Check if the ACCESS_FINE_LOCATION permission has been granted
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             // Request the necessary location permission if not granted
@@ -499,7 +594,9 @@ public class DisplayMaps extends AppCompatActivity {
             getCurrentLocation();
         } else {
             // If permission is granted, get the last known location
+
             Task<Location> locationResult = fusedLocationClient.getLastLocation();
+
 
             // Add a listener to handle the location result
             locationResult.addOnSuccessListener(location -> {
@@ -668,26 +765,7 @@ public class DisplayMaps extends AppCompatActivity {
         latitude = lat;
         longitude = lon;
     }
-//                if (mapsforgeMapView != null) { //Two checks for initialization
-//                    LatLong newLocation = new LatLong(latitude, longitude);
-//                    mapsforgeMapView.setCenter(newLocation);
-//
-//                    //Remove existing marker from Mapsforge if it exists
-//                    if (currentMarker != null) {
-//                        mapsforgeMapView.getLayerManager().getLayers().remove(currentMarker);
-//                    }
-//
-//                    org.osmdroid.views.MapView viewForIcon = new org.osmdroid.views.MapView(this); //Extract the icon used for OSM.
-//                    Marker markerForIcon = new Marker(viewForIcon);
-//                    // Add a new marker for the current location on Mapsforge map
-//                    Bitmap drawable = AndroidGraphicFactory.convertToBitmap(markerForIcon.getIcon());  // Convert the extracted icon to a usable format
-//
-//
-//                    currentMarker = new org.mapsforge.map.layer.overlay.Marker(newLocation, drawable, 0, 0);  // Create a new marker
-//
-//                    mapsforgeMapView.getLayerManager().getLayers().add(currentMarker);  // Add the new marker to the map
-//                }
-//            }
+
 
 
     /**
@@ -725,10 +803,10 @@ public class DisplayMaps extends AppCompatActivity {
     }
 
     public void toggleAutoRenew(View view) {
-        isPaused = !isPaused;
+        isPausedButton = !isPausedButton;
         FloatingActionButton button = findViewById(R.id.autoRenewButton);
 
-        if (isPaused) {
+        if (isPausedButton) {
             button.setImageDrawable(getDrawable(R.drawable.lock_reset));
             Toast.makeText(DisplayMaps.this, "Live tracking OFF", Toast.LENGTH_SHORT).show();
 
@@ -739,81 +817,8 @@ public class DisplayMaps extends AppCompatActivity {
         }
     }
 
-    /**
-     * Saves the adjusted location (latitude and longitude) to a CSV file in the Downloads folder.
-     *
-     * @param longitude The longitude of the adjusted location.
-     * @param latitude  The latitude of the adjusted location.
-     */
-
 
 }
-//private void loadOfflineMap() {
 
-//       //  Check if the map has already been initialized. Have to use this for several reasons but mostly null pointer issues.
-//        if (!isInitialisedOffline) {
-//            isInitialisedOffline = true; // Mark as initialized
-//
-//            Toast.makeText(getApplicationContext(), "Initializing offline map", Toast.LENGTH_SHORT).show();
-//
-//            // Proceed to initialize Mapsforge MapView only if it hasn't been created yet
-//            if (mapsforgeMapView == null) {
-//                // Initialize the Mapsforge graphics context
-//                AndroidGraphicFactory.createInstance(this.getApplication());
-//
-//                // Create a new Mapsforge MapView instance
-//                mapsforgeMapView = new MapView(this);
-//                mapsforgeMapView.getMapScaleBar().setVisible(true); // Make the scale bar visible
-//                mapsforgeMapView.setClickable(true); // Enable user interactions on the map
-//
-//                // Create a tile cache for the offline map
-//                org.mapsforge.map.android.util.AndroidUtil.createTileCache(
-//                        this, "mapcache", // Cache directory name
-//                        mapsforgeMapView.getModel().displayModel.getTileSize(), // Tile size
-//                        1f, // Tile cache memory multiplier
-//                        mapsforgeMapView.getModel().frameBufferModel.getOverdrawFactor() // Overdraw factor for rendering
-//                );
-//
-//                // Copy the offline map file from resources to internal storage
-//                //File mapFile = copyMapFileToInternalStorage(this, R.raw.overijsse, "overijsse.map");
-
-//                MapFile mapData = new MapFile(mapFile); // Load the map file
-//
-//                // Create another tile cache for rendering tiles
-//                TileCache tileCache = AndroidUtil.createTileCache(this, "mapcache",
-//                        mapsforgeMapView.getModel().displayModel.getTileSize(), 1f,
-//                        mapsforgeMapView.getModel().frameBufferModel.getOverdrawFactor());
-//
-//                // Initialize the tile renderer layer with the offline map data
-//                tileRendererLayer = new TileRendererLayer(
-//                        tileCache, // Tile cache
-//                        mapData, // Map data
-//                        mapsforgeMapView.getModel().mapViewPosition, // Map view position
-//                        false, // Whether to render background
-//                        true, // Whether to render tiles
-//                        true, // Whether to render labels
-//                        AndroidGraphicFactory.INSTANCE // Graphic factory instance
-//                );
-//
-//                // Set the render theme for the tile renderer
-//                tileRendererLayer.setXmlRenderTheme(org.mapsforge.map.rendertheme.InternalRenderTheme.DEFAULT);
-//
-//                // Add the tile renderer layer to the Mapsforge MapView
-//                mapsforgeMapView.getLayerManager().getLayers().add(tileRendererLayer);
-//
-//                // Set the initial center and zoom level for the offline map
-//                mapsforgeMapView.setCenter(new LatLong(52.21833, 6.89583)); // Center on Enschede as an example (if location has not loaded yet)
-//                //mapsforgeMapView.setZoomLevel((byte) 16); // Set zoom level to 16
-//            }
-//
-//            // Delay the addition of the map view to the container, have to use this because the code keeps running forward even if the mapview hasnt loaded
-//            new Handler().postDelayed(() -> {
-//                if (mapsforgeMapView != null) {
-//                    // Add the initialized Mapsforge map view to the UI layout
-//                    mapContainer.addView(mapsforgeMapView);
-//
-//                }
-//            }, 100); // Delay of 100 milliseconds
-//        }
 
 
