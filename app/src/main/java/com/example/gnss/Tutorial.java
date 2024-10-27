@@ -32,7 +32,7 @@ public class Tutorial extends AppCompatActivity {
         ViewPager2 pager = findViewById(R.id.tutorial_pager);
 
         List<Fragment> fragments = Arrays.asList(
-            TutorialP1.newInstance(), TutorialP2.newInstance()
+            TutorialP1.newInstance(), TutorialP2.newInstance(), TutorialP3.newInstance()
         );
 
         pager.setAdapter(new FragmentStateAdapter(this) {

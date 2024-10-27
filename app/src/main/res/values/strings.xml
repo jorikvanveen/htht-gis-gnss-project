@@ -48,6 +48,17 @@
     <string name="survey_creation_question_name">Prompt</string>
     <string name="survey_save_button_text">Save</string>
     <string name="survey_name_hint">My survey</string>
+    <string name="about_description">"This app aims to make it trivial for anyone to collect geospatial data. A typical workflow would look like this:
+
+1. Create a survey. This defines which types of data you would like to research. You will need to create a question for each column you want in your final CSV.
+
+2. Export the survey and send it to your colleagues. They can then import the survey on their phone.
+
+3. Start collecting data. For every entry you will need to pick a location on a map and fill out the questions defined in the survey.
+
+4. Edit entries to correct and/or remove data
+
+5. Export your data. The app will let you easily export all your collected entries into a CSV, which you can then import into your GIS of choice for further processing."</string>
 
     <string-array name="boolean_options">
         <item>Undefined</item>
