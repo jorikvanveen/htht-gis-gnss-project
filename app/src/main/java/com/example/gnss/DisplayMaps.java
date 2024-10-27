@@ -13,6 +13,7 @@ import android.location.LocationManager;
 import android.net.ConnectivityManager;
 import android.net.Network;
 import android.net.NetworkCapabilities;
+import android.net.NetworkInfo;
 import android.net.NetworkRequest;
 import android.net.Uri;
 import android.os.Build;
@@ -39,10 +40,12 @@ import com.example.gnss.dto.Survey;
 import com.example.gnss.dto.SurveyQuestion;
 import com.example.gnss.singleton.DataVault;
 import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.Granularity;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.Priority;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -228,14 +231,24 @@ public class DisplayMaps extends AppCompatActivity {
             return;
         }
 
-        locationRequest = LocationRequest.create();
-        locationRequest.setInterval(10000); // 10 seconds
-        locationRequest.setFastestInterval(3000); // 5 seconds
-        locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+
+        LocationRequest locationRequest = new LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 4000).build();
 
 
         fusedLocationClient.requestLocationUpdates(locationRequest, callback, null);
 
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        startLocationUpdates(locationCallback);
+    }
+
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        startLocationUpdates(locationCallback);
     }
 
     @Override
@@ -298,18 +311,25 @@ public class DisplayMaps extends AppCompatActivity {
                 }
             }
 
-            @Override
             public void onLost(@NonNull Network network) {
-
                 super.onLost(network); // Call the superclass method
                 Handler handler = new Handler(Looper.getMainLooper());
 
-                // Switch to offline map when internet is lost
-                if(!isInitialisedOffline) {
-                    runOnUiThread(() -> switchToOfflineMap());
-                }
+                // Delay for 3 seconds before switching to offline map
+                handler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        // Check network availability after the delay
+//                        ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+//                        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+//                        boolean isConnected = activeNetwork != null && activeNetwork.isConnectedOrConnecting();
 
-
+                        // Switch to offline map if still not connected
+                        if (!isInternetAvailable() && !isInitialisedOffline) {
+                            runOnUiThread(DisplayMaps.this::switchToOfflineMap);
+                        }
+                    }
+                }, 4000); // 4 seconds delay
             }
         });
     }
