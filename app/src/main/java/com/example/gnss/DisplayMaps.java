@@ -485,6 +485,7 @@ public class DisplayMaps extends AppCompatActivity {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             // Request the necessary location permission if not granted
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, LOCATION_PERMISSION_REQUEST_CODE);
+            getCurrentLocation();
         } else {
             // If permission is granted, get the last known location
             Task<Location> locationResult = fusedLocationClient.getLastLocation();
