@@ -1,9 +1,9 @@
 package com.example.gnss.dto;
 
 public final class BooleanAnswer implements Answer {
-    public boolean value;
+    public String value;
 
-    public BooleanAnswer(boolean value) {
+    public BooleanAnswer(String value) {
         this.value = value;
     }
 

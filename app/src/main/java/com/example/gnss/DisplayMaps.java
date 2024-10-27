@@ -18,6 +18,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.provider.MediaStore;
 import android.provider.Settings;
 import android.util.Log;
@@ -218,14 +219,24 @@ public class DisplayMaps extends AppCompatActivity {
             public void onAvailable(@NonNull Network network) {
                 super.onAvailable(network); // Call the superclass method
                 // Switch to online map when internet becomes available
-                runOnUiThread(() -> switchToOnlineMap());
+
+                if(!isInitialised) {
+                    runOnUiThread(() -> switchToOnlineMap());
+                }
             }
 
             @Override
             public void onLost(@NonNull Network network) {
+
                 super.onLost(network); // Call the superclass method
+                Handler handler = new Handler(Looper.getMainLooper());
+
                 // Switch to offline map when internet is lost
-                runOnUiThread(() -> switchToOfflineMap());
+                if(!isInitialisedOffline) {
+                    runOnUiThread(() -> switchToOfflineMap());
+                }
+
+
             }
         });
     }
@@ -359,7 +370,7 @@ public class DisplayMaps extends AppCompatActivity {
 
             // Load the OSMDroid configuration from preferences
             Configuration.getInstance().load(this, getPreferences(MODE_PRIVATE));
-            Toast.makeText(getApplicationContext(), "Initializing OSMDroid map", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getApplicationContext(), "Initializing map", Toast.LENGTH_SHORT).show();
 
             // Initialize osmMapView (OSMDroid MapView)
             osmMapView = new org.osmdroid.views.MapView(this);
@@ -565,6 +576,7 @@ public class DisplayMaps extends AppCompatActivity {
                                 }
                                 @Override
                                 public void onMarkerDragEnd(Marker marker) {
+                                    Toast.makeText(DisplayMaps.this, "You have 10s to save", Toast.LENGTH_SHORT).show();
                                     GeoPoint markerPos = marker.getPosition();
                                     setLatLong(markerPos.getLatitude(), markerPos.getLongitude());
                                     locationCheckHandler.postDelayed(() -> {
@@ -711,6 +723,7 @@ public class DisplayMaps extends AppCompatActivity {
     }
 
     public void updateLocation(View view) {
+        Toast.makeText(DisplayMaps.this, "Getting your location...", Toast.LENGTH_SHORT).show();
         getCurrentLocation();
     }
 
@@ -720,8 +733,12 @@ public class DisplayMaps extends AppCompatActivity {
 
         if (isPaused) {
             button.setImageDrawable(getDrawable(R.drawable.lock_reset));
+            Toast.makeText(DisplayMaps.this, "Live tracking OFF", Toast.LENGTH_SHORT).show();
+
         } else {
             button.setImageDrawable(getDrawable(R.drawable.autorenew));
+            Toast.makeText(DisplayMaps.this, "Live tracking ON", Toast.LENGTH_SHORT).show();
+
         }
     }
 

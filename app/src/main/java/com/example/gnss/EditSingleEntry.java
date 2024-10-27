@@ -3,6 +3,7 @@ package com.example.gnss;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -34,6 +35,7 @@ import org.w3c.dom.Text;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 public class EditSingleEntry extends AppCompatActivity {
@@ -59,6 +61,8 @@ public class EditSingleEntry extends AppCompatActivity {
     private String formattedDate;
     private String formattedTime;
 
+    private String currentName;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -83,7 +87,7 @@ public class EditSingleEntry extends AppCompatActivity {
 
         latitude = entry.getLat();
         longitude = entry.getLon();
-        name = entry.getName();
+        currentName = entry.getName();
 
         //Get the date and the time for each entry
         formattedDate = entry.getDate();
@@ -133,7 +137,7 @@ public class EditSingleEntry extends AppCompatActivity {
 
         displayLat.setText(doubleLat);
         displayLon.setText(doubleLon);
-        displayName.setText(name);
+        displayName.setText(currentName);
         //Display the date and time
         displayDate.setText(formattedDate);
         displayTime.setText(formattedTime);
@@ -187,7 +191,7 @@ public class EditSingleEntry extends AppCompatActivity {
                     }
                     case Boolean -> {
                         BooleanAnswer answer = (BooleanAnswer) genAnswer;
-                        answerStrings.add(Boolean.toString(answer.value));
+                        answerStrings.add((answer.value));
                     }
                 }
             }
@@ -197,6 +201,7 @@ public class EditSingleEntry extends AppCompatActivity {
 //            TextView questionTextView  = new TextView(this);
 //            EditText questionPrompt = new EditText(this);
 //            questionPrompt.setHint(questions.get(i).getPrompt());
+
 
             addQuestionToLayout(questions.get(i), answerStrings.get(i));
 
@@ -235,9 +240,8 @@ public class EditSingleEntry extends AppCompatActivity {
                 break;
             case Integer:
                 EditText integerInput = new EditText(this);
-
                 integerInput.setInputType(android.text.InputType.TYPE_CLASS_NUMBER);
-                integerInput.setText(Integer.parseInt(answer));
+                integerInput.setText(String.valueOf(Integer.parseInt(answer)));
                 answerContainer.addView(integerInput);
                 inputFields.add(integerInput);
                 break;
@@ -257,9 +261,11 @@ public class EditSingleEntry extends AppCompatActivity {
                 booleanSpinner.setAdapter(adapter);
 
                 if(answer.equalsIgnoreCase("True")){
-                    booleanSpinner.setSelection(0);
-                }else{
                     booleanSpinner.setSelection(1);
+                }else if (answer.equalsIgnoreCase("False")){
+                    booleanSpinner.setSelection(2);
+                } else {
+                    booleanSpinner.setSelection(0);
                 }
                 answerContainer.addView(booleanSpinner);
                 inputFields.add(booleanSpinner);
@@ -294,7 +300,24 @@ public class EditSingleEntry extends AppCompatActivity {
                 }
             }
             else if (i ==2){
-                name = ((EditText) inputField).getText().toString();
+
+                boolean isAlready = false;
+                name = ((EditText)inputField).getText().toString();
+                ArrayList<SurveyDataPoint> entries = vault.getSurveyEntries(surveyId);
+                for (SurveyDataPoint entry : entries){
+
+
+                    if (Objects.equals(name, entry.getName()) && !(Objects.equals(name, currentName))){
+                        isAlready = true;
+
+                        break;
+
+                    }
+                }
+                if (isAlready){
+                    Toast.makeText(this, "Entry with name " +name + " already exists.", Toast.LENGTH_SHORT).show();
+                    break;
+                }
             }
             else if (i == 3){
                 formattedDate = ((EditText) inputField).getText().toString();
@@ -338,40 +361,63 @@ public class EditSingleEntry extends AppCompatActivity {
 
                 case Boolean:
                     // Expecting "true" or "false"
-                    if (input.equalsIgnoreCase("True") || input.equalsIgnoreCase("False")) {
-                        if (input.equals("True")) {
-                            BooleanAnswer booleanAnswer = new BooleanAnswer(true);
+                    if (input.equalsIgnoreCase("true") || input.equalsIgnoreCase("false")) {
+                        if (input.equalsIgnoreCase("true")) {
+                            BooleanAnswer booleanAnswer = new BooleanAnswer("True");
                             answers.add(booleanAnswer);
                         } else {
-                            BooleanAnswer booleanAnswer = new BooleanAnswer(false);
+                            BooleanAnswer booleanAnswer = new BooleanAnswer("False");
                             answers.add(booleanAnswer);
                         }
                         return true;
+
+                    }else if(input.equalsIgnoreCase("undefined")){
+                        BooleanAnswer booleanAnswer = new BooleanAnswer("Undefined");
+                        answers.add(booleanAnswer);
+                        return true;
                     } else {
-                        Toast.makeText(context, "Please enter 'true' or 'false' for question: " + i + 1, Toast.LENGTH_SHORT).show();
+                        Toast.makeText(context, "Please enter 'true' or 'false' for question: "+i+1, Toast.LENGTH_SHORT).show();
                         return false;
                     }
+
 
                 case Integer:
                     // Check if the input can be parsed as an integer
                     try {
-                        Integer.parseInt(input);
-                        IntAnswer intAnswer = new IntAnswer(Integer.parseInt(input));
-                        answers.add(intAnswer);
-                        return true;
+
+                        if (input.isEmpty()){
+                            IntAnswer intAnswer = new IntAnswer(0);
+                            answers.add(intAnswer);
+                            return true;
+                        }
+                        else {
+                            Integer.parseInt(input);
+                            IntAnswer intAnswer = new IntAnswer(Integer.parseInt(input));
+                            answers.add(intAnswer);
+                            return true;
+                        }
                     } catch (NumberFormatException e) {
-                        Toast.makeText(context, "Please enter a valid integer for question: " + i + 1, Toast.LENGTH_SHORT).show();
+                        Toast.makeText(context, "Please enter a valid integer for question: "+i+1, Toast.LENGTH_SHORT).show();
                         return false;
                     }
 
                 case Float:
                     // Check if the input can be parsed as a float
                     try {
-                        Float.parseFloat(input);
-                        FloatAnswer floatAnswer = new FloatAnswer(Float.parseFloat(input));
+                    if (input.isEmpty()){
+                        FloatAnswer floatAnswer = new FloatAnswer(0);
                         answers.add(floatAnswer);
                         return true;
-                    } catch (NumberFormatException e) {
+                    }
+                    else {
+
+                            Float.parseFloat(input);
+                            FloatAnswer floatAnswer = new FloatAnswer(Float.parseFloat(input));
+                            answers.add(floatAnswer);
+                            return true;
+                        }
+                        }
+                    catch (NumberFormatException e) {
                         Toast.makeText(context, "Please enter a valid float number for question: " + i + 1, Toast.LENGTH_SHORT).show();
                         return false;
                     }

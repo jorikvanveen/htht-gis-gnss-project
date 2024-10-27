@@ -9,7 +9,7 @@
         android:id="@+id/linearLayout"
         android:layout_width="0dp"
         android:layout_height="79dp"
-        android:background="#673AB7"
+        android:background="#0dcdd4"
         android:orientation="vertical"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -19,11 +19,12 @@
             android:id="@+id/textView3"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
+            android:layout_marginTop="16dp"
+            android:fontFamily="@font/adlam_display"
             android:text="All Surveys"
             android:textAlignment="center"
             android:textColor="#FFFFFF"
-            android:textSize="24sp" />
+            android:textSize="34sp" />
     </LinearLayout>
 
     <ScrollView
@@ -45,26 +46,32 @@
         android:id="@+id/createSurvey"
         android:layout_width="0dp"
         android:layout_height="59dp"
+        android:backgroundTint="#0dcdd4"
+        android:fontFamily="@font/adlam_display"
         android:onClick="goToCreateSurvey"
         android:text="Create Survey"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="1.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/scrollView3"
-        app:layout_constraintVertical_bias="0.0" />
-
-    <Button
-        android:id="@+id/button3"
-        android:layout_width="0dp"
-        android:layout_height="59dp"
-        android:onClick="importSurvey"
-        android:text="Import survey"
+        android:textSize="20sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/scrollView3"
-        app:layout_constraintVertical_bias="0.648" />
+        app:layout_constraintVertical_bias="0.296" />
+
+    <Button
+        android:id="@+id/button3"
+        android:layout_width="0dp"
+        android:layout_height="59dp"
+        android:backgroundTint="#0dcdd4"
+        android:fontFamily="@font/adlam_display"
+        android:onClick="importSurvey"
+        android:text="Import survey"
+        android:textSize="20sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/scrollView3"
+        app:layout_constraintVertical_bias="0.842" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

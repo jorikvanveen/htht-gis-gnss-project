@@ -7,7 +7,7 @@
     android:layout_height="match_parent"
     tools:context=".EditSingleEntry">
 
-    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
@@ -28,8 +28,11 @@
         <Button
             android:id="@+id/submitButton"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Submit" />
+            android:layout_height="59dp"
+            android:backgroundTint="#0dcdd4"
+            android:fontFamily="@font/adlam_display"
+            android:text="Submit"
+            android:textSize="20sp" />
     </LinearLayout>
 
 

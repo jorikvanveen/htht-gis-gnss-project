@@ -1,6 +1,7 @@
 package com.example.gnss;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.graphics.ColorFilter;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
@@ -115,6 +116,8 @@ public class CreateSurvey extends AppCompatActivity {
                 170,
                 ViewGroup.LayoutParams.MATCH_PARENT
         );
+        //Setting the colour of the delete button
+        deleteBtn.setBackgroundColor(Color.parseColor("#0dcdd4"));
         deleteBtn.setLayoutParams(btnParams);
         deleteBtn.setIcon(AppCompatResources.getDrawable(this, R.drawable.delete_outline));
         deleteBtn.setOnClickListener(new View.OnClickListener() {
@@ -135,9 +138,9 @@ public class CreateSurvey extends AppCompatActivity {
 
         vault.addSurvey(survey);
         DataVault.save(this);
-
-        Intent intent = new Intent(this, MainActivity.class);
-        this.startActivity(intent);
+        finish();
+//        Intent intent = new Intent(this, MainActivity.class);
+//        this.startActivity(intent);
     }
 
     public Survey readFormData() {

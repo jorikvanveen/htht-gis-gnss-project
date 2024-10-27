@@ -8,18 +8,40 @@
     tools:context=".CreateSurvey">
 
     <LinearLayout
+        android:id="@+id/linearLayout5"
+        android:layout_width="0dp"
+        android:layout_height="79dp"
+        android:background="#0dcdd4"
+        android:orientation="vertical"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <TextView
+            android:id="@+id/textView2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:fontFamily="@font/adlam_display"
+            android:text="Create a new Survey!"
+            android:textAlignment="center"
+            android:textColor="#FFFFFF"
+            android:textSize="34sp" />
+    </LinearLayout>
+
+    <LinearLayout
 
         android:id="@+id/linearLayout2"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
-        android:layout_marginTop="32dp"
+        android:layout_marginTop="24dp"
         android:layout_marginEnd="16dp"
         android:gravity="center"
         android:orientation="vertical"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toBottomOf="@+id/linearLayout5">
 
         <EditText
             android:id="@+id/createSurveyNameInput"
@@ -50,6 +72,7 @@
             android:layout_height="wrap_content"
             android:clickable="true"
             android:onClick="newQuestion"
+            app:backgroundTint="#0dcdd4"
             app:srcCompat="@android:drawable/ic_menu_add" />
 
         <Space
@@ -60,9 +83,13 @@
             android:id="@+id/button2"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:height="59dp"
             android:alpha="1"
+            android:backgroundTint="#0dcdd4"
+            android:fontFamily="@font/adlam_display"
             android:onClick="onSave"
-            android:text="@string/survey_save_button_text" />
+            android:text="@string/survey_save_button_text"
+            android:textSize="20sp" />
 
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

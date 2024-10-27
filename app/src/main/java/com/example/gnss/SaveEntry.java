@@ -32,6 +32,7 @@ import com.example.gnss.singleton.DataVault;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 import java.text.SimpleDateFormat;
@@ -201,8 +202,21 @@ public class SaveEntry extends AppCompatActivity {
             View inputField = inputFields.get(i);
 
             if (i == 0 ){
+                boolean isAlready = false;
                 name = ((EditText)inputField).getText().toString();
+                ArrayList<SurveyDataPoint> entries = vault.getSurveyEntries(surveyId);
+                for (SurveyDataPoint entry : entries){
+                    if (Objects.equals(name, entry.getName())){
+                        isAlready = true;
 
+                        break;
+
+                    }
+                }
+                if (isAlready){
+                    Toast.makeText(this, "Entry with name " +name + " already exists.", Toast.LENGTH_SHORT).show();
+                    break;
+                }
             }
 
             // Determine the type of input and collect the answer
@@ -233,6 +247,7 @@ public class SaveEntry extends AppCompatActivity {
     private boolean validateAndRegisterAnswer(String input, SurveyQuestionType type, Context context, int i) {
         switch (type) {
             case String:
+
                 // Any string is valid, so no validation needed
                 StringAnswer stringAnswer = new StringAnswer(input);
                 answers.add(stringAnswer);
@@ -241,14 +256,21 @@ public class SaveEntry extends AppCompatActivity {
 
             case Boolean:
                 // Expecting "true" or "false"
+
+
                 if (input.equalsIgnoreCase("true") || input.equalsIgnoreCase("false")) {
                     if (input.equalsIgnoreCase("true")) {
-                        BooleanAnswer booleanAnswer = new BooleanAnswer(true);
+                        BooleanAnswer booleanAnswer = new BooleanAnswer("True");
                         answers.add(booleanAnswer);
-                    }else{
-                        BooleanAnswer booleanAnswer = new BooleanAnswer(false);
+                    } else {
+                        BooleanAnswer booleanAnswer = new BooleanAnswer("False");
                         answers.add(booleanAnswer);
                     }
+                    return true;
+
+                }else if(input.equalsIgnoreCase("undefined")){
+                    BooleanAnswer booleanAnswer = new BooleanAnswer("Undefined");
+                    answers.add(booleanAnswer);
                     return true;
                 } else {
                     Toast.makeText(context, "Please enter 'true' or 'false' for question: "+i+1, Toast.LENGTH_SHORT).show();
@@ -258,10 +280,18 @@ public class SaveEntry extends AppCompatActivity {
             case Integer:
                 // Check if the input can be parsed as an integer
                 try {
-                    Integer.parseInt(input);
-                    IntAnswer intAnswer = new IntAnswer(Integer.parseInt(input));
-                    answers.add(intAnswer);
-                    return true;
+
+                    if (input.isEmpty()){
+                        IntAnswer intAnswer = new IntAnswer(0);
+                        answers.add(intAnswer);
+                        return true;
+                    }
+                    else {
+                        Integer.parseInt(input);
+                        IntAnswer intAnswer = new IntAnswer(Integer.parseInt(input));
+                        answers.add(intAnswer);
+                        return true;
+                    }
                 } catch (NumberFormatException e) {
                     Toast.makeText(context, "Please enter a valid integer for question: "+i+1, Toast.LENGTH_SHORT).show();
                     return false;
@@ -270,12 +300,21 @@ public class SaveEntry extends AppCompatActivity {
             case Float:
                 // Check if the input can be parsed as a float
                 try {
-                    Float.parseFloat(input);
-                    FloatAnswer floatAnswer = new FloatAnswer(Float.parseFloat(input));
+                if (input.isEmpty()){
+                    FloatAnswer floatAnswer = new FloatAnswer(0f);
                     answers.add(floatAnswer);
                     return true;
-                } catch (NumberFormatException e) {
-                    Toast.makeText(context, "Please enter a valid float number for question: "+i+1, Toast.LENGTH_SHORT).show();
+                }
+                else {
+
+                        Float.parseFloat(input);
+                        FloatAnswer floatAnswer = new FloatAnswer(Float.parseFloat(input));
+                        answers.add(floatAnswer);
+                        return true;
+                    }
+                    }
+                catch (NumberFormatException e) {
+                    Toast.makeText(context, "Please enter a valid float number for question: " + i + 1, Toast.LENGTH_SHORT).show();
                     return false;
                 }
 
