@@ -522,13 +522,10 @@ public class DisplayMaps extends AppCompatActivity {
     /**
      * Updates the map location and adds a marker at the specified coordinates.
      *
-     * @param lat  The latitude of the location.
-     * @param lon The longitude of the location.
+     * @param latitude  The latitude of the location.
+     * @param longitude The longitude of the location.
      */
-    private void updateMapLocation(double lat, double lon) {
-
-        // Make sure it uses data
-        MBTilesMapView.setUseDataConnection(true);
+    private void updateMapLocation(double latitude, double longitude) {
 
         //OSMdroid map update
         if (isInitialised) { //Check if an instance of OSM is initialized
@@ -538,7 +535,7 @@ public class DisplayMaps extends AppCompatActivity {
                 if (osmMapView != null) { //Another check for initialization.
 
                     // Update map center to current location
-                    osmMapView.getController().setCenter(new GeoPoint(lat, lon));
+                    osmMapView.getController().setCenter(new GeoPoint(latitude, longitude));
 
                     // Remove any existing markers
                     if (marker != null && hasMarker()) {
@@ -552,7 +549,7 @@ public class DisplayMaps extends AppCompatActivity {
                             osmMapView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
 
                             // Update the map center to the current location
-                            osmMapView.getController().setCenter(new GeoPoint(lat, lon));
+                            osmMapView.getController().setCenter(new GeoPoint(latitude, longitude));
 
                             // Remove any existing marker if present
                             if (marker != null && hasMarker()) {
@@ -561,7 +558,7 @@ public class DisplayMaps extends AppCompatActivity {
 
                             // Create a new marker for the current location
                             marker = new Marker(osmMapView);
-                            marker.setPosition(new GeoPoint(lat, lon));
+                            marker.setPosition(new GeoPoint(latitude, longitude));
                             marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
                             marker.setTitle("Current Location");
                             marker.setDraggable(true);
@@ -608,7 +605,7 @@ public class DisplayMaps extends AppCompatActivity {
                     if (MBTilesMapView != null) { //Another check for initialization.
 
                         // Update map center to current location
-                        MBTilesMapView.getController().setCenter(new GeoPoint(lat, lon));
+                        MBTilesMapView.getController().setCenter(new GeoPoint(latitude, longitude));
 
                         // Remove any existing markers
                         if (marker != null && hasMarker()) {
@@ -622,7 +619,7 @@ public class DisplayMaps extends AppCompatActivity {
                                 MBTilesMapView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
 
                                 // Update the map center to the current location
-                                MBTilesMapView.getController().setCenter(new GeoPoint(lat, lon));
+                                MBTilesMapView.getController().setCenter(new GeoPoint(latitude, longitude));
 
                                 // Remove any existing marker if present
                                 if (marker != null && hasMarker()) {
@@ -631,7 +628,7 @@ public class DisplayMaps extends AppCompatActivity {
 
                                 // Create a new marker for the current location
                                 marker = new Marker(MBTilesMapView);
-                                marker.setPosition(new GeoPoint(lat, lon));
+                                marker.setPosition(new GeoPoint(latitude, longitude));
                                 marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
                                 marker.setTitle("Current Location");
                                 marker.setDraggable(true);
