@@ -20,6 +20,9 @@
         android:theme="@style/Theme.GNSS"
         tools:targetApi="31">
         <activity
+            android:name=".Tutorial"
+            android:exported="false" />
+        <activity
             android:name=".EditSingleEntry"
             android:exported="false" />
         <activity

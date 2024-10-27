@@ -43,6 +43,12 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/linearLayout5">
 
+        <TextView
+            android:id="@+id/textView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Survey name" />
+
         <EditText
             android:id="@+id/createSurveyNameInput"
             android:layout_width="match_parent"

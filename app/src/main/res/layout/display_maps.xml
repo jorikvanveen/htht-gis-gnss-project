@@ -31,17 +31,17 @@
 
     <TextView
         android:id="@+id/textView5"
-        android:layout_width="wrap_content"
-        android:layout_height="64dp"
-        android:layout_marginTop="16dp"
+        android:layout_width="300dp"
+        android:layout_height="47dp"
         android:fontFamily="@font/adlam_display"
         android:text="Location Selection"
         android:textAlignment="center"
         android:textColor="#FFFFFF"
         android:textSize="34sp"
+        app:layout_constraintBottom_toBottomOf="@+id/toolbar"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="@+id/toolbar"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="@+id/map" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/linearLayout4"

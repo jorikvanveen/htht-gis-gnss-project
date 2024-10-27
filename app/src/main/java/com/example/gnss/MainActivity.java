@@ -1,6 +1,7 @@
 package com.example.gnss;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
@@ -55,11 +56,24 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        SharedPreferences prefs = getSharedPreferences("prefs", MODE_PRIVATE);
+
+        if (!prefs.getBoolean("didTutorial", false)) {
+            Intent intent = new Intent(this, Tutorial.class);
+            startActivity(intent);
+        };
+
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
         vault = DataVault.getInstance(this);
         LinearLayout surveyList = this.findViewById(R.id.survey_list);
+
+        if (vault.surveys().size() == 0)  {
+            TextView helpText = new TextView(this);
+            helpText.setText("Nothing here... create or import a survey.");
+            surveyList.addView(helpText);
+        }
 
         for (Survey survey : vault.surveys())  {
             LayoutInflater inflater = this.getLayoutInflater();

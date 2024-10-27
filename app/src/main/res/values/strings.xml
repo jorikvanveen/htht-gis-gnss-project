@@ -47,7 +47,7 @@
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="survey_creation_question_name">Prompt</string>
     <string name="survey_save_button_text">Save</string>
-    <string name="survey_name_hint">Survey name</string>
+    <string name="survey_name_hint">My survey</string>
 
     <string-array name="boolean_options">
         <item>Undefined</item>
