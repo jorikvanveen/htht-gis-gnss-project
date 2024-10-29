@@ -133,6 +133,8 @@ public class EditSingleEntry extends AppCompatActivity {
         String doubleLat = Double.toString(latitude);
         String doubleLon = Double.toString(longitude);
 
+        doubleLat = String.format("%.5f", latitude);
+        doubleLon = String.format("%.5f", longitude);
 
 
         displayLat.setText(doubleLat);

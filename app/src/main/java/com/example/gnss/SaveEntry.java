@@ -130,8 +130,8 @@ public class SaveEntry extends AppCompatActivity {
     }
     private void addLatLon(){
 
-        String formattedLat = String.format("%.6f", latitude);
-        String formattedLon = String.format("%.6f", longitude);
+        String formattedLat = String.format("%.5f", latitude);
+        String formattedLon = String.format("%.5f", longitude);
 
         String latLonString = "Latitude: " +formattedLat + "     Longitude: "+formattedLon;
 
