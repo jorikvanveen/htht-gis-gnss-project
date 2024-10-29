@@ -276,7 +276,6 @@ public class EditSingleEntry extends AppCompatActivity {
     }
     private void collectAnswers() throws IOException {
 
-
         answers = new ArrayList<>();
 
 

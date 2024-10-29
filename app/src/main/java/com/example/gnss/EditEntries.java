@@ -131,12 +131,13 @@ public class EditEntries extends AppCompatActivity {
         String date = entry.getDate();
         String time = entry.getTime();
         ArrayList<String> answerStrings = new ArrayList<>();
+        UUID uuidInt = UUID.randomUUID();
 
         ArrayList<SurveyQuestion> questions = vault.getSurvey(surveyId).get().getQuestions();
         ArrayList<Answer> answers = entry.getAnswers();
 
-        String csvData = "Name,Latitude,Longitude,Date,Time";
-        String csvAnswers = name+ "," + latitude + "," + longitude + "," + date + "," + time;
+        String csvData = "ID,Name,Latitude,Longitude,Date,Time";
+        String csvAnswers =uuidInt.toString() + "," + name+ "," + latitude + "," + longitude + "," + date + "," + time;
 
 
         for (int i = 0; i < questions.size(); i++) {
@@ -210,7 +211,7 @@ public class EditEntries extends AppCompatActivity {
 
     private void saveLocationToCSVMultiple() {
         // Prepare the CSV data as a string
-        StringBuilder csvData = new StringBuilder("Name,Latitude,Longitude,Date,Time");
+        StringBuilder csvData = new StringBuilder("ID,Name,Latitude,Longitude,Date,Time");
         ArrayList<SurveyDataPoint> entries = vault.getSurveyEntries(surveyId);
         ArrayList<SurveyQuestion> questions = vault.getSurvey(surveyId).get().getQuestions();
         for (int i = 0; i < questions.size(); i++) {
@@ -219,6 +220,7 @@ public class EditEntries extends AppCompatActivity {
         }
         csvData.append("\n");
         for(SurveyDataPoint entry : entries) {
+            UUID uuidInt = UUID.randomUUID();
 
             double latitude = entry.getLat();
             double longitude = entry.getLon();
@@ -251,7 +253,9 @@ public class EditEntries extends AppCompatActivity {
                     }
                 }
             }
-            csvData.append(name)
+            csvData.append(uuidInt.toString())
+                    .append(",")
+                    .append(name)
                     .append(",")
                     .append(latitude)
                     .append(",")
